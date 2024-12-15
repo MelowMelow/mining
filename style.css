@@ -1,0 +1,208 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-image: url("test4.gif");
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  font-family: "Arial", sans-serif;
+  color: white;
+}
+
+#main-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+#stats {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 20px;
+}
+
+#stats img {
+  width: 24px;
+  height: 24px;
+}
+
+#inventory-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* Energy Bar */
+#energy-bar {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 300px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid green;
+  border-radius: 5px;
+}
+
+#energy-fill {
+  height: 100%;
+  width: 100%;
+  background-color: limegreen;
+  transition: width 0.3s ease;
+  border-radius: 5px;
+}
+
+/* Inventory Rarity Frames */
+.slot.common {
+  border: 2px solid gray;
+}
+
+.slot.uncommon {
+  border: 2px solid silver;
+}
+
+.slot.rare {
+  border: 2px solid gold;
+}
+
+#inventory-frame {
+  position: fixed;
+  top: 10%;
+  left: center;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+#inventory-frame.hidden {
+  display: none;
+}
+
+/* Leaderboard */
+#leaderboard {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  font-size: 2em;
+}
+
+#leaderboard.hidden {
+  display: none;
+}
+
+
+#close-inventory {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+#mine-button {
+  background: red;
+  padding: 10px 20px;
+  margin-top: 500px;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#mining-timer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: transparent;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#mining-timer.hidden {
+  display: none;
+}
+
+
+/* Timer container */
+#mining-timer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* The GIF styling */
+#gif {
+    max-width: 100px;  /* Resized with a max-width of 150px */
+    max-height: 100px; /* Resized with a max-height of 150px */
+    width: auto;
+    height: auto;
+    animation: pulse 1.5s ease-in-out infinite;  /* Pulsing animation */
+}
+
+/* Pulsing effect */
+@keyframes pulse {
+    0% {
+        transform: scale(1);  /* Normal size */
+    }
+    50% {
+        transform: scale(1.1);  /* Slightly larger */
+    }
+    100% {
+        transform: scale(1);  /* Back to normal size */
+    }
+}
+t a max-width for responsiveness */
+}
+
+#timer-countdown {
+  margin-top: 10px;
+  color: white;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+#popup-resource {
+  position: fixed;
+  bottom: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pulse 1s ease-in-out forwards;
+  display: none;
+}
+
+#popup-resource.active {
+  display: block;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}

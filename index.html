@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anti-Utopia Mining Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="main-container">
+    <div id="stats">
+		  <div><img src="gold.png" alt="Gold"> <span id="gold-count">0</span></div>
+		  <div><img src="silver.png" alt="Silver"> <span id="silver-count">0</span></div>
+		  <div><img src="copper.png" alt="Copper"> <span id="copper-count">0</span></div>
+		</div>
+
+		<div id="energy-bar">
+		  <div id="energy-fill"></div>
+		  <span>Energy: <span id="energy-count">1000</span></span>
+		</div>
+
+		<button id="mine-button">Start Mining</button>
+		<button id="inventory-button">Inventory</button>
+		<button id="leaderboard-button">Leaderboard</button>
+
+		<div id="inventory-frame" class="hidden">
+		  <div>
+			<button id="close-inventory">X</button>
+			<h3>Inventory</h3>
+			<ul id="inventory-list"></ul>
+		  </div>
+		</div>
+
+		<div id="popup-resource"></div>
+
+		<div id="mining-timer" class="hidden">
+		  <img src="1.gif" alt="Pulsing GIF" id="gif">
+		  </div>
+		  <div id="timer-countdown">10</div>
+		</div>
+
+		<div id="leaderboard" class="hidden">
+		  <p>Leaderboard coming soon...</p>
+		</div>
+
+
+
+		  
+  <script src="script.js"></script>
+</body>
+</html>
