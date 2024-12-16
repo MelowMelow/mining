@@ -1,3 +1,38 @@
+
+async function registerUser(telegram_id, username, first_name, last_name) {
+    const response = await fetch("https://localhost:3000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ telegram_id, username, first_name, last_name }),
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        console.log("User registered successfully!", result.data);
+        // Optionally, save user data in a variable or local storage
+        // Proceed to get user resources
+        fetchUserResources(result.data[0].id);  // Use the returned user ID
+    } else {
+        console.error("Error registering user:", result.error);
+    }
+}
+async function fetchUserResources(userId) {
+    const response = await fetch(`https://localhost:3000/api/resources/${userId}`);
+    const resources = await response.json();
+    console.log("User resources:", resources);
+
+    // Update your frontend with user resources (e.g., gold, silver)
+    updateStats(resources);
+}
+
+function updateStats(resources) {
+    // Assume you have HTML elements to show resources:
+    document.getElementById("gold-count").innerText = resources[0].gold;
+    document.getElementById("silver-count").innerText = resources[0].silver;
+    document.getElementById("copper-count").innerText = resources[0].copper;
+    document.getElementById("energy-count").innerText = resources[0].energy;
+}
+
 let energy = 1000;
 let isMining = false;
 let resources = {
@@ -38,18 +73,34 @@ function startMining() {
   }, 1000);
 }
 
-function finishMining() {
-  const popup = document.getElementById("popup-resource");
-  const resourceType = generateResource();
-  resources[resourceType].count++;
-  updateStats();
-  updateInventory();
+async function finishMining(userId) {
+    const resourceType = generateResource(); // Assuming this is your random generator for resource
+    const amount = 1; // Assuming each mining event collects 1 resource
 
-  popup.innerText = `+1 ${resourceType.toUpperCase()}`;
-  popup.className = `active ${resources[resourceType].rarity}`;
+    // Send the mined resource data to the backend to update
+    const response = await fetch("https://localhost:3000/api/mine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, resource_type: resourceType, amount }),
+    });
 
-  setTimeout(() => (popup.className = ""), 1000);
+    const result = await response.json();
+    if (result.success) {
+        console.log(`${resourceType} successfully updated!`);
+        // After mining, update resources on the frontend
+        fetchUserResources(userId);  // Fetch the updated resources
+    } else {
+        console.error("Error updating resources:", result.error);
+    }
 }
+
+function generateResource() {
+    const random = Math.random() * 100;
+    if (random < 5) return "gold";
+    if (random < 35) return "silver";
+    return "copper";
+}
+
 
 function updateStats() {
   for (let resource in resources) {

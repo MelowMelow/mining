@@ -7,13 +7,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- Telegram Login Button -->
+<!-- Telegram Login Button -->
+
+
 
   <div id="main-container">
     <div id="stats">
-		  <div><img src="gold.png" alt="Gold"> <span id="gold-count">0</span></div>
-		  <div><img src="silver.png" alt="Silver"> <span id="silver-count">0</span></div>
-		  <div><img src="copper.png" alt="Copper"> <span id="copper-count">0</span></div>
-		</div>
+		<div><img src="gold.png" alt="Gold"> <span id="gold-count">0</span></div>
+		<div><img src="silver.png" alt="Silver"> <span id="silver-count">0</span></div>
+		<div><img src="copper.png" alt="Copper"> <span id="copper-count">0</span></div>
+	</div>
+
 
 		<div id="energy-bar">
 		  <div id="energy-fill"></div>
@@ -46,7 +51,13 @@
 
 
 
-		  
+	<script async src="https://telegram.org/js/telegram-widget.js?7"
+        data-telegram-login="TheMineCryptoBot"  <!-- Replace with your bot username -->
+        data-size="large"
+        data-radius="10"
+        data-auth-url="https://localhost:3000/api/authenticate"> <!-- Use your public Vercel URL -->
+	</script>
+
   <script src="script.js"></script>
 </body>
 </html>
