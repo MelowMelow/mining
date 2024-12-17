@@ -50,40 +50,64 @@
 
   <script src="script.js"></script>
   <script>
-    window.onload = function () {
-  // Check if Telegram Web App provides any data
-  if (window.Telegram && window.Telegram.WebApp) {
-    const tgWebApp = window.Telegram.WebApp;
-    const tgWebAppData = tgWebApp.initData;
+	   document.addEventListener('DOMContentLoaded', () => {
+		if (window.Telegram && window.Telegram.WebApp) {
+			const tgWebApp = window.Telegram.WebApp;
+			tgWebApp.ready(); // Important to call this to initialize the webapp
 
-    if (tgWebAppData) {
-      // Send user data to backend API
-      fetch('/api/authenticate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ tgWebAppData: tgWebAppData })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          console.log("Authentication successful:", data.user);
-          // Additional actions after successful authentication
-        } else {
-          console.error("Authentication failed:", data.error);
-        }
-      })
-      .catch(err => {
-        console.error("Error with authentication:", err);
-      });
-  }
-};
+			// Method to authenticate
+			function authenticateWithBackend() {
+				const initData = tgWebApp.initData;
+				
+				if (!initData) {
+					console.error('No init data available');
+					return;
+				}
+
+				fetch('/api/authenticate', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ initData })
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success) {
+						console.log('Authentication successful', data);
+						
+						// Hide login widget if needed
+						const tgLoginWidget = document.querySelector('.telegram-login-widget');
+						if (tgLoginWidget) {
+							tgLoginWidget.style.display = 'none';
+						}
+
+						// Store user data in localStorage or sessionStorage
+						localStorage.setItem('userData', JSON.stringify(data.user[0]));
+						
+						// Perform any post-authentication actions
+						if (data.isNewUser) {
+							// Handle new user registration flow
+							console.log('New user registered');
+						} else {
+							// Handle existing user login
+							console.log('Existing user logged in');
+						}
+					} else {
+						console.error('Authentication failed', data.error);
+					}
+				})
+				.catch(error => {
+					console.error('Authentication request error', error);
+				});
+			}
+
+			// Call authentication method
+			authenticateWithBackend();
+		} else { 
+			console.error('Telegram WebApp not available');
+		}
+	});
 	</script>
 </body>
 </html>
