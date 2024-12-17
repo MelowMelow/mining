@@ -49,31 +49,32 @@
 
   <script src="script.js"></script>
 
-  <script>
-    // Check if the user has already logged in (session or cookie-based)
-    window.onload = function() {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
-      
-      if (token) {
-        // If token exists, send the token or user data to check in the backend
-        fetch('/api/check-auth', {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` },
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            console.log("User authenticated. Hiding Telegram widget.");
-            document.querySelector('script[data-telegram-login]').style.display = 'none';
-          } else {
-            console.log("User not authenticated.");
-            document.querySelector('script[data-telegram-login]').style.display = 'block'; // Show widget
-          }
-        });
-      } else {
-        document.querySelector('script[data-telegram-login]').style.display = 'block'; // Show widget
-      }
+<script>
+  // When the user opens the page, check if there is a session/token
+  window.onload = function() {
+    // Check if there's an authentication token in cookies or local storage
+    const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+
+    if (token) {
+      fetch('/api/check-auth', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // User authenticated, hide the Telegram widget
+          document.querySelector('script[data-telegram-login]').style.display = 'none';
+        } else {
+          // User not authenticated, show the Telegram widget
+          document.querySelector('script[data-telegram-login]').style.display = 'block';
+        }
+      });
+    } else {
+      document.querySelector('script[data-telegram-login]').style.display = 'block';  // Show widget if no token
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
