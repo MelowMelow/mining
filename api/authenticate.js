@@ -5,7 +5,8 @@ import crypto from "crypto";
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
-    console.log("Received request:", req.method);  // This will print if the request is reaching the API
+    console.log('Request Method:', req.method);  // Logs the request method
+    console.log('Incoming Body:', req.body);  // Logs the incoming data for debugging
 
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
@@ -14,11 +15,11 @@ export default async function handler(req, res) {
     try {
         const { hash, ...authData } = req.body;
 
-        console.log("Incoming data:", authData); // Print incoming data to verify
+        console.log('authData:', authData);  // Verify what data was sent from the Telegram Widget
 
-        // Check for required fields
+        // Check for required fields (user's ID, username)
         if (!authData.id || !authData.username) {
-            console.log("Missing fields:", authData);
+            console.log("Missing required fields:", authData);  // Log missing fields
             return res.status(400).json({ error: "Missing required fields." });
         }
 
@@ -35,15 +36,14 @@ export default async function handler(req, res) {
             .update(checkString)
             .digest("hex");
 
-        console.log("Validation hash:", validationHash, "Received hash:", hash);
+        console.log("Validation hash:", validationHash, "Received hash:", hash);  // Log hashes for comparison
 
         if (validationHash !== hash) {
             console.log("Hash mismatch");
             return res.status(400).json({ error: "Invalid hash. Data verification failed." });
         }
 
-        console.log("Hash verification successful!");
-
+        // After hash validation, save the data to Supabase
         const { data, error } = await supabase
             .from("users")
             .upsert(
@@ -53,16 +53,16 @@ export default async function handler(req, res) {
                     first_name: authData.first_name || null,
                     last_name: authData.last_name || null,
                 }],
-                { onConflict: ["telegram_id"] }
+                { onConflict: ["telegram_id"] } // Ensures no duplicate telegram_id entries
             );
 
         if (error) throw error;
 
-        console.log("User registered successfully:", data);
+        console.log('User registered successfully:', data); // Log success
 
         return res.status(200).json({ success: true, user: data });
     } catch (error) {
-        console.error("Server error:", error.message);  // Log specific errors
+        console.error("Server error:", error.message);  // Log any server-side errors
         return res.status(500).json({ error: error.message });
     }
 }
