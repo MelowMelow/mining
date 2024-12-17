@@ -5,7 +5,15 @@ import crypto from "crypto";
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
-    console.log('Request Method:', req.method);  // Logs the request method
+    console.log("Received request at /api/authenticate", req.body);  // Log the body of the request
+
+    // Ensure data is valid
+    if (!req.body.hash) {
+        console.log("No hash provided, authentication failed");
+        return res.status(400).json({ error: "Hash missing or invalid." });
+    }
+
+    console.log('Request Method:', req.method);  // Log the request method
     console.log('Incoming Body:', req.body);  // Logs the incoming data for debugging
 
     if (req.method !== "POST") {
@@ -15,9 +23,9 @@ export default async function handler(req, res) {
 
     try {
         const { hash, ...authData } = req.body;
-        console.log('authData:', authData);  // Verify what data was sent from the Telegram Widget
+        console.log('authData:', authData);  // Log the data sent from the Telegram Widget
 
-        // Check for required fields (user's ID, username)
+        // Check if required fields (user's ID, username) are present
         if (!authData.id || !authData.username) {
             console.log("Missing required fields:", authData);  // Log missing fields
             return res.status(400).json({ error: "Missing required fields." });
