@@ -48,21 +48,37 @@
   </script>
 
   <script src="script.js"></script>
-<script>
-  window.onload = function() {
-    // Retrieve any session info, e.g., from cookies or local storage
-    const token = localStorage.getItem('user_token'); // Or use a cookie
-    
-    if (token) {
-      // User is logged in
-      document.querySelector('.tgme_widget_login_button').style.display = 'none';
-      // You could trigger some UI updates to load game or main content
-    } else {
-      // User is not logged in
-      document.querySelector('.tgme_widget_login_button').style.display = 'block';
-    }
-  };
-</script>
+  <script>
+    window.onload = function () {
+      // Check if the Telegram Web App provides any data
+      if (window.Telegram && window.Telegram.WebApp) {
+        const tgWebAppData = window.Telegram.WebApp.initData;
+
+        if (tgWebAppData) {
+          const tgUser = JSON.parse(decodeURIComponent(tgWebAppData)).user;
+          console.log('Authenticated User:', tgUser);
+
+          // Check if the user data exists in your system and save them to the database
+          fetch('/api/authenticate', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            params: { tgWebAppData: tgWebAppData },
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Hide the widget if the user is already registered
+              document.getElementById("tg-widget").style.display = 'none';
+              console.log("Widget hidden for existing user");
+            } else {
+              // Display the widget if user is not registered yet
+              console.log("User is not registered, keep widget visible.");
+            }
+          });
+        }
+      }
+    };
+  </script>
 
 
 </body>
