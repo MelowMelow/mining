@@ -1,11 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto";
+import crypto from 'crypto';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Initialize Supabase client
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
     console.log("Received request to /api/authenticate");
+    console.log("Full request body:", JSON.stringify(req.body, null, 2));
+    console.log("Environment variables:", {
+        SUPABASE_URL: !!process.env.SUPABASE_URL,
+        TELEGRAM_BOT_TOKEN: !!process.env.TELEGRAM_BOT_TOKEN
+    });
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -21,10 +30,15 @@ export default async function handler(req, res) {
 
         // Directly parse the data
         const parsedData = JSON.parse(decodeURIComponent(tgWebAppData));
-        console.log('Telegram user data:', parsedData);
+        console.log('Telegram user data:', JSON.stringify(parsedData, null, 2));
 
-        // Validate signature (you'll need to implement this based on Telegram's authentication)
+        // Validate signature 
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+        if (!TELEGRAM_BOT_TOKEN) {
+            console.error('Telegram Bot Token is not set');
+            return res.status(500).json({ error: 'Server configuration error' });
+        }
+
         const checkString = Object.keys(parsedData.user)
             .sort()
             .map((key) => `${key}=${parsedData.user[key]}`)
@@ -32,9 +46,6 @@ export default async function handler(req, res) {
 
         const secretKey = crypto.createHash('sha256').update(TELEGRAM_BOT_TOKEN).digest();
         const calculatedHash = crypto.createHmac('sha256', secretKey).update(checkString).digest('hex');
-
-        // Optional: Compare hash if Telegram provides one
-        // This part might need adjustment based on how Telegram provides the hash
 
         const { id, username, first_name, last_name, photo_url, language_code } = parsedData.user;
 
@@ -61,7 +72,7 @@ export default async function handler(req, res) {
                 photo_url: photo_url || null,
                 language_code: language_code || null
             }])
-            .select();  // Return the inserted user
+            .select();
 
         if (insertError) {
             console.error('Error inserting new user:', insertError);
@@ -73,6 +84,9 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error("Error during verification or registration:", error.message);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ 
+            error: error.message,
+            stack: error.stack 
+        });
     }
 }
