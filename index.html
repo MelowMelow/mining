@@ -48,33 +48,22 @@
   </script>
 
   <script src="script.js"></script>
-
 <script>
-  // When the user opens the page, check if there is a session/token
   window.onload = function() {
-    // Check if there's an authentication token in cookies or local storage
-    const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
-
+    // Retrieve any session info, e.g., from cookies or local storage
+    const token = localStorage.getItem('user_token'); // Or use a cookie
+    
     if (token) {
-      fetch('/api/check-auth', {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` },
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // User authenticated, hide the Telegram widget
-          document.querySelector('script[data-telegram-login]').style.display = 'none';
-        } else {
-          // User not authenticated, show the Telegram widget
-          document.querySelector('script[data-telegram-login]').style.display = 'block';
-        }
-      });
+      // User is logged in
+      document.querySelector('.tgme_widget_login_button').style.display = 'none';
+      // You could trigger some UI updates to load game or main content
     } else {
-      document.querySelector('script[data-telegram-login]').style.display = 'block';  // Show widget if no token
+      // User is not logged in
+      document.querySelector('.tgme_widget_login_button').style.display = 'block';
     }
-  }
+  };
 </script>
+
 
 </body>
 </html>
