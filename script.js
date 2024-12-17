@@ -1,6 +1,8 @@
 // Use dynamic URL for Vercel deployment
 const backendUrl = window.location.origin;
 
+
+
 // Fetch and pass Telegram data to backend
 async function authenticateUser(authData) {
     try {
