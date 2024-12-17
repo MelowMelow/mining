@@ -8,6 +8,7 @@
 </head>
 <body>
   <div id="main-container">
+    <!-- Game UI Elements (example) -->
     <div id="stats">
       <div><img src="gold.png" alt="Gold"> <span id="gold-count">0</span></div>
       <div><img src="silver.png" alt="Silver"> <span id="silver-count">0</span></div>
@@ -50,36 +51,39 @@
   <script src="script.js"></script>
   <script>
     window.onload = function () {
-      // Check if the Telegram Web App provides any data
+      // Check if Telegram Web App provides any data
       if (window.Telegram && window.Telegram.WebApp) {
         const tgWebAppData = window.Telegram.WebApp.initData;
 
         if (tgWebAppData) {
+          // Parse user data
           const tgUser = JSON.parse(decodeURIComponent(tgWebAppData)).user;
           console.log('Authenticated User:', tgUser);
 
-          // Check if the user data exists in your system and save them to the database
+          // Send user data to backend API
           fetch('/api/authenticate', {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            params: { tgWebAppData: tgWebAppData },
+            method: 'POST',  // Use POST, not GET
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ tgWebAppData: tgWebAppData })  // Sending data in body
           })
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              // Hide the widget if the user is already registered
+              // Hide the widget if user is registered
               document.getElementById("tg-widget").style.display = 'none';
               console.log("Widget hidden for existing user");
             } else {
-              // Display the widget if user is not registered yet
-              console.log("User is not registered, keep widget visible.");
+              console.log("User not registered yet, widget remains visible.");
             }
+          })
+          .catch(err => {
+            console.error("Error with authentication:", err);
           });
         }
       }
     };
   </script>
-
-
 </body>
 </html>
