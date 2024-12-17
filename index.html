@@ -51,39 +51,34 @@
   <script src="script.js"></script>
   <script>
     window.onload = function () {
-      // Check if Telegram Web App provides any data
-      if (window.Telegram && window.Telegram.WebApp) {
-        const tgWebAppData = window.Telegram.WebApp.initData;
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tgWebApp = window.Telegram.WebApp;
+    const tgWebAppData = tgWebApp.initData;
 
-        if (tgWebAppData) {
-          // Parse user data
-          const tgUser = JSON.parse(decodeURIComponent(tgWebAppData)).user;
-          console.log('Authenticated User:', tgUser);
-
-          // Send user data to backend API
-          fetch('/api/authenticate', {
-            method: 'POST',  // Use POST, not GET
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ tgWebAppData: tgWebAppData })  // Sending data in body
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              // Hide the widget if user is registered
-              document.getElementById("tg-widget").style.display = 'none';
-              console.log("Widget hidden for existing user");
-            } else {
-              console.log("User not registered yet, widget remains visible.");
-            }
-          })
-          .catch(err => {
-            console.error("Error with authentication:", err);
-          });
+    if (tgWebAppData) {
+      // Send user data to backend API
+      fetch('/api/authenticate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tgWebAppData: tgWebAppData })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log("Authentication successful:", data.user);
+          // Hide the widget or perform further actions
+          // document.getElementById("tg-widget").style.display = 'none';
+        } else {
+          console.log("Authentication failed:", data.error);
         }
-      }
-    };
+      })
+      .catch(err => {
+        console.error("Error with authentication:", err);
+      });
+  }
+};
   </script>
 </body>
 </html>
