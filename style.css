@@ -21,6 +21,19 @@ body {
   height: 100%;
   z-index: 1; /* Keep game interactions active */
 }
+#mine-button {
+  position: absolute; /* Position relative to the parent container */
+  top: 70%;           /* 50% from the top */
+  left: 50%;          /* 50% from the left */
+  transform: translate(-50%, -50%); /* Center the button perfectly */
+  background-color: red; /* Existing styling */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 5; /* Ensures the button stays above other elements */
+}
 
 /* Stats Section */
 #stats {
@@ -109,7 +122,7 @@ body {
 button {
   background: red;
   padding: 10px 20px;
-  margin-top: 200px;
+  margin-top: 20px;
   border: none;
   color: white;
   font-size: 16px;
