@@ -1,83 +1,80 @@
+// Import necessary libraries
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
 
-// Supabase Configuration
+// Supabase Setup
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
-    console.log("Received request at /api/authenticate", req.body);
+    console.log("Received request at /api/authenticate", req.query);
 
-    if (req.method !== 'POST') {
+    if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Extract the tgWebAppData (user details) and the signature and validate the signature
         const tgWebAppDataString = req.query.tgWebAppData;
-        const hash = req.query.hash;
-
+        const signature = req.query.hash; // The hash from Telegram to verify integrity
         const tgWebAppData = JSON.parse(decodeURIComponent(tgWebAppDataString));
+        
         console.log("Parsed User Data from URL:", tgWebAppData);
 
-        // Step 1: Validate incoming data using the provided hash
+        // Validate the signature using the Telegram Bot Token
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-        const authData = tgWebAppData.user;
-        
-        const checkString = Object.keys(authData)
+
+        const checkString = Object.keys(tgWebAppData.user)
             .sort()
-            .map((key) => `${key}=${authData[key]}`)
+            .map((key) => `${key}=${tgWebAppData.user[key]}`)
             .join('\n');
 
-        // Create a validation hash from the secret key
         const secretKey = crypto.createHash('sha256').update(TELEGRAM_BOT_TOKEN).digest();
-        const validationHash = crypto.createHmac('sha256', secretKey).update(checkString).digest('hex');
-
-        console.log("Validation hash:", validationHash, "Received hash:", hash);  // Log hashes for comparison
+        const calculatedHash = crypto.createHmac('sha256', secretKey).update(checkString).digest('hex');
         
-        if (validationHash !== hash) {
-            return res.status(400).json({ error: 'Invalid hash. Data verification failed.' });
+        console.log("Calculated Hash:", calculatedHash);
+        
+        if (calculatedHash !== signature) {
+            console.log("Hash mismatch");
+            return res.status(400).json({ error: 'Invalid hash' });
         }
 
-        // Step 2: Check if the user exists in the database
+        const authData = tgWebAppData.user;
+        const { id, username, first_name, last_name, photo_url, language_code } = authData;
+
+        // Check if the user exists in the database
         const { data, error } = await supabase
             .from('users')
             .select('*')
-            .eq('telegram_id', authData.id)
-            .single(); // Fetch one user
-        
+            .eq('telegram_id', id)
+            .single();
+
         if (data) {
             console.log("User already exists:", data);
-            // If the user exists, generate a session token (JWT)
-            const token = jwt.sign({ telegram_id: authData.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-            return res.status(200).json({ success: true, user: data, token });
+            return res.status(200).json({ success: true, user: data });
         }
 
-        // Step 3: Register the user in the database if they do not exist
+        // If not found, insert the user into the database
         const { data: newUser, error: insertError } = await supabase
             .from('users')
             .insert([
                 {
-                    telegram_id: authData.id,
-                    username: authData.username || null,
-                    first_name: authData.first_name || null,
-                    last_name: authData.last_name || null,
-                    photo_url: authData.photo_url || null, // Optional field
-                    language_code: authData.language_code || null, // Optional field
-                },
+                    telegram_id: id,
+                    username: username || null,
+                    first_name: first_name || null,
+                    last_name: last_name || null,
+                    photo_url: photo_url || null,
+                    language_code: language_code || null
+                }
             ]);
         
         if (insertError) {
-            console.log('Error inserting new user:', insertError.message);
+            console.error('Error inserting new user:', insertError.message);
             return res.status(500).json({ error: insertError.message });
         }
 
-        console.log('New user registered:', newUser);
+        console.log("New user registered:", newUser);
         
-        // Step 4: Create a session token for the new user and return the data
-        const token = jwt.sign({ telegram_id: authData.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        return res.status(200).json({ success: true, user: newUser, token });
-    
+        return res.status(200).json({ success: true, user: newUser });
+        
     } catch (error) {
         console.error("Server error:", error.message);
         return res.status(500).json({ error: error.message });
