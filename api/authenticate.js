@@ -7,18 +7,19 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 export default async function handler(req, res) {
     console.log("Received request to /api/authenticate");
 
-    if (req.method !== 'GET') {
+    if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const tgWebAppDataString = req.query.tgWebAppData; // Received user data from the client
-        const signature = req.query.hash; // Telegram-generated signature for data integrity
+        // Extract tgWebAppData from request body
+        const { tgWebAppDataString } = req.body; // Received user data from the client
         const tgWebAppData = JSON.parse(decodeURIComponent(tgWebAppDataString));
+        const signature = req.query.hash;  // Telegram-generated signature for integrity
 
         console.log('Telegram user data:', tgWebAppData);
 
-        // Validate hash to ensure the data hasn’t been tampered with
+        // Validate signature
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
         const checkString = Object.keys(tgWebAppData.user)
             .sort()
@@ -37,31 +38,30 @@ export default async function handler(req, res) {
 
         const { id, username, first_name, last_name, photo_url, language_code } = tgWebAppData.user;
 
-        // Check if user is already registered in Supabase (or any DB you’re using)
+        // Check if the user already exists in the database
         const { data, error } = await supabase
             .from('users')
             .select('*')
             .eq('telegram_id', id)
-            .single();
+            .single();  // Single entry for matching ID
 
         if (data) {
+            // User already exists
             console.log("User already exists:", data);
             return res.status(200).json({ success: true, user: data });
         }
 
-        // If user not found, insert them into your database
+        // Insert user if not found
         const { data: newUser, error: insertError } = await supabase
             .from('users')
-            .insert([
-                {
-                    telegram_id: id,
-                    username: username || null,
-                    first_name: first_name || null,
-                    last_name: last_name || null,
-                    photo_url: photo_url || null,
-                    language_code: language_code || null
-                }
-            ]);
+            .insert([{
+                telegram_id: id,
+                username: username || null,
+                first_name: first_name || null,
+                last_name: last_name || null,
+                photo_url: photo_url || null,
+                language_code: language_code || null
+            }]);
 
         if (insertError) {
             console.error('Error inserting new user:', insertError);
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
         console.log("User registered successfully:", newUser);
         return res.status(200).json({ success: true, user: newUser });
-        
+
     } catch (error) {
         console.error("Error during verification or registration:", error.message);
         return res.status(500).json({ error: error.message });
