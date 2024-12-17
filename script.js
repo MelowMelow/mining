@@ -1,22 +1,23 @@
 // Use dynamic URL for Vercel deployment
 const backendUrl = window.location.origin;
 
-// Function to register user
-async function registerUser(telegram_id, username, first_name, last_name) {
-    const response = await fetch(`${backendUrl}/api/register`, {
+// Fetch and pass Telegram data to backend
+async function authenticateUser(authData) {
+    const response = await fetch(`${backendUrl}/api/authenticate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telegram_id, username, first_name, last_name }),
+        body: JSON.stringify(authData),
     });
 
     const result = await response.json();
     if (result.success) {
-        console.log("User registered successfully!", result.data);
-        fetchUserResources(result.data[0].id);
+        console.log("User authenticated successfully!", result.user);
+        fetchUserResources(result.user[0].id);
     } else {
-        console.error("Error registering user:", result.error);
+        console.error("Authentication error:", result.error);
     }
 }
+
 
 // Function to fetch user resources
 async function fetchUserResources(userId) {
