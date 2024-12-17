@@ -9,12 +9,12 @@ export default async function handler(req, res) {
     console.log('Incoming Body:', req.body);  // Logs the incoming data for debugging
 
     if (req.method !== "POST") {
+        console.log('Method not allowed');
         return res.status(405).json({ error: "Method not allowed" });
     }
 
     try {
         const { hash, ...authData } = req.body;
-
         console.log('authData:', authData);  // Verify what data was sent from the Telegram Widget
 
         // Check for required fields (user's ID, username)
@@ -56,7 +56,10 @@ export default async function handler(req, res) {
                 { onConflict: ["telegram_id"] } // Ensures no duplicate telegram_id entries
             );
 
-        if (error) throw error;
+        if (error) {
+            console.log("Error inserting data into Supabase:", error);  // Log any Supabase errors
+            throw error;
+        }
 
         console.log('User registered successfully:', data); // Log success
 
