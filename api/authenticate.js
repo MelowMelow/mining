@@ -2,54 +2,50 @@ const { createClient } = require("@supabase/supabase-js");
 const crypto = require("crypto");
 
 // Supabase Configuration
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// API Route Handler
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
 
-    const authData = req.body;
+    const { hash, ...authData } = req.body;
 
-    // Check if the necessary data is present
-    if (!authData.username || !authData.id) {
-        return res.status(400).json({ error: "Missing username or ID" });
+    // Check if required fields are present
+    if (!authData.id || !authData.username) {
+        return res.status(400).json({ error: "Missing required fields." });
     }
 
     const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-    // Generate the hash to verify the incoming data
-    const hash = crypto
-        .createHmac("sha256", TELEGRAM_BOT_TOKEN)
-        .update(
-            Object.keys(authData)
-                .sort()
-                .map((key) => authData[key])
-                .join("\n")
-        )
-        .digest("hex");
+    // Create validation string to verify Telegram login
+    const checkString = Object.keys(authData)
+        .sort()
+        .map((key) => `${key}=${authData[key]}`)
+        .join("\n");
 
-    if (hash !== authData.hash) {
-        return res.status(400).send("Hash mismatch. Invalid data.");
+    const secretKey = crypto.createHmac("sha256", "WebAppData").update(TELEGRAM_BOT_TOKEN).digest();
+    const validationHash = crypto.createHmac("sha256", secretKey).update(checkString).digest("hex");
+
+    if (validationHash !== hash) {
+        return res.status(400).json({ error: "Invalid hash. Data verification failed." });
     }
 
-    // Now the data is valid, proceed with user registration or update
-    const { id, username, first_name, last_name } = authData;
-
+    // Verified, now register or update user in Supabase
     try {
         const { data, error } = await supabase
             .from("users")
-            .upsert([{ telegram_id: id, username, first_name, last_name }]);
+            .upsert([{ 
+                telegram_id: authData.id,
+                username: authData.username,
+                first_name: authData.first_name || null,
+                last_name: authData.last_name || null,
+            }], { onConflict: ['telegram_id'] }); // Ensures no duplicates based on telegram_id
 
-        if (error) {
-            return res.status(500).json({ error: error.message });
-        }
+        if (error) throw error;
 
-        res.json({ success: true, user: data });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(200).json({ success: true, user: data });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
     }
 }
