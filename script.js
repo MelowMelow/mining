@@ -1,75 +1,138 @@
-// Use dynamic URL for Vercel deployment
-const backendUrl = window.location.origin;
+let energy = 1000;
+let isMining = false;
+let resources = {
+  gold: { count: 0, rarity: "rare" },
+  silver: { count: 0, rarity: "uncommon" },
+  copper: { count: 0, rarity: "common" },
+};
 
+document.getElementById("mine-button").addEventListener("click", startMining);
+document.getElementById("inventory-button").addEventListener("click", toggleInventory);
+document.getElementById("close-inventory").addEventListener("click", toggleInventory);
+document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
+function startMining() {
+  if (isMining || energy < 30) return;
 
-// Fetch and pass Telegram data to backend
-async function authenticateUser(authData) {
-    try {
-        console.log('Sending auth data to backend:', authData); // Log data sent to the backend
-        const response = await fetch(`${backendUrl}/api/authenticate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(authData),
-        });
+  isMining = true;
+  energy -= 30;
+  updateEnergy();
 
-        const result = await response.json();
-        console.log('Authentication response:', result); // Log the server's response
+  const miningTimer = document.getElementById("mining-timer");
+  const timerCountdown = document.getElementById("timer-countdown");
 
-        if (result.success) {
-            console.log("User authenticated successfully!", result.user);
-            fetchUserResources(result.user[0].id);
-        } else {
-            console.error("Authentication error:", result.error);
-        }
-    } catch (error) {
-        console.error('Error during authentication request:', error);
+  miningTimer.classList.remove("hidden");
+  let secondsLeft = 10;
+  timerCountdown.innerText = secondsLeft;
+
+  const interval = setInterval(() => {
+    secondsLeft -= 1;
+    timerCountdown.innerText = secondsLeft;
+
+    if (secondsLeft <= 0) {
+      clearInterval(interval);
+      miningTimer.classList.add("hidden");
+      isMining = false;
+      finishMining();
     }
+  }, 1000);
 }
 
-// Function to fetch user resources
-async function fetchUserResources(userId) {
-    try {
-        console.log('Fetching user resources for ID:', userId); // Log the user ID used to fetch resources
-        const response = await fetch(`${backendUrl}/api/resources/${userId}`);
-        const resources = await response.json();
-        console.log('User resources:', resources);
-        updateStats(resources);
-    } catch (error) {
-        console.error('Error fetching user resources:', error);
-    }
+function finishMining() {
+  const popup = document.getElementById("popup-resource");
+  const resourceType = generateResource();
+  resources[resourceType].count++;
+  updateStats();
+  updateInventory();
+
+  popup.innerText = `+1 ${resourceType.toUpperCase()}`;
+  popup.className = `active ${resources[resourceType].rarity}`;
+
+  setTimeout(() => (popup.className = ""), 1000);
 }
 
-// Mining function with API integration
-async function finishMining(userId) {
-    const resourceType = generateResource(); 
-    const amount = 1; 
-
-    try {
-        const response = await fetch(`${backendUrl}/api/mine`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: userId, resource_type: resourceType, amount }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            console.log(`${resourceType} successfully updated!`);
-            fetchUserResources(userId);
-        } else {
-            console.error("Error updating resources:", result.error);
-        }
-    } catch (error) {
-        console.error("Error finishing mining:", error);
-    }
+function updateStats() {
+  for (let resource in resources) {
+    document.getElementById(`${resource}-count`).innerText = resources[resource].count;
+  }
 }
 
-// Utility function to generate a resource
+function updateEnergy() {
+  const energyCount = document.getElementById("energy-count");
+  const energyBar = document.getElementById("energy-fill");
+  energyCount.innerText = energy;
+
+  const percent = (energy / 1000) * 100;
+  energyBar.style.width = `${percent}%`;
+}
+
+function updateInventory() {
+  const inventoryList = document.getElementById("inventory-list");
+  inventoryList.innerHTML = "";
+
+  for (let resource in resources) {
+    const item = resources[resource];
+    if (item.count > 0) {
+      const listItem = document.createElement("li");
+      listItem.className = `slot ${item.rarity}`;
+      listItem.innerHTML = `<img src="${resource}.png" alt="${resource}">${item.count}`;
+      inventoryList.appendChild(listItem);
+    }
+  }
+}
+
 function generateResource() {
-    const random = Math.random() * 100;
-    if (random < 5) return "gold"; 
-    if (random < 35) return "silver"; 
-    return "copper"; 
+  const random = Math.random() * 100;
+  if (random < 5) return "gold"; // Rare
+  if (random < 35) return "silver"; // Uncommon
+  return "copper"; // Common
 }
 
-// Additional utility functions for updating stats, inventory, etc.
+function toggleInventory() {
+  const inventoryFrame = document.getElementById("inventory-frame");
+  inventoryFrame.classList.toggle("hidden");
+}
+
+function toggleLeaderboard() {
+  const leaderboard = document.getElementById("leaderboard");
+  leaderboard.classList.toggle("hidden");
+
+  const uiElements = ["stats", "energy-bar", "inventory-button"];
+  uiElements.forEach((id) => document.getElementById(id).classList.toggle("hidden"));
+}
+
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  // Extract user data from the request body
+  const user = req.body;
+
+  if (!user || !user.id || !user.username) {
+    return res.status(400).json({ error: 'Missing user information' });
+  }
+
+  // Try to register the user in the database
+  const { data, error } = await supabase.from('users').upsert([
+    {
+      telegram_id: user.id,
+      username: user.username,
+      first_name: user.first_name || null,
+      last_name: user.last_name || null,
+    },
+  ], { onConflict: ['telegram_id'] });
+
+  if (error) {
+    return res.status(500).json({ error: 'Error registering user: ' + error.message });
+  }
+
+  // Respond with success
+  return res.status(200).json({ success: true, user: data });
+}
+
