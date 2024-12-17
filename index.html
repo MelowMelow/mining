@@ -7,59 +7,73 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<!-- Telegram Login Button -->
-<!-- Telegram Login Button -->
-
-
-
   <div id="main-container">
     <div id="stats">
-		<div><img src="gold.png" alt="Gold"> <span id="gold-count">0</span></div>
-		<div><img src="silver.png" alt="Silver"> <span id="silver-count">0</span></div>
-		<div><img src="copper.png" alt="Copper"> <span id="copper-count">0</span></div>
-	</div>
+      <div><img src="gold.png" alt="Gold"> <span id="gold-count">0</span></div>
+      <div><img src="silver.png" alt="Silver"> <span id="silver-count">0</span></div>
+      <div><img src="copper.png" alt="Copper"> <span id="copper-count">0</span></div>
+    </div>
 
+    <div id="energy-bar">
+      <div id="energy-fill"></div>
+      <span>Energy: <span id="energy-count">1000</span></span>
+    </div>
 
-		<div id="energy-bar">
-		  <div id="energy-fill"></div>
-		  <span>Energy: <span id="energy-count">1000</span></span>
-		</div>
+    <button id="mine-button">Start Mining</button>
+    <button id="inventory-button">Inventory</button>
+    <button id="leaderboard-button">Leaderboard</button>
 
-		<button id="mine-button">Start Mining</button>
-		<button id="inventory-button">Inventory</button>
-		<button id="leaderboard-button">Leaderboard</button>
+    <div id="inventory-frame" class="hidden">
+      <div>
+        <button id="close-inventory">X</button>
+        <h3>Inventory</h3>
+        <ul id="inventory-list"></ul>
+      </div>
+    </div>
 
-		<div id="inventory-frame" class="hidden">
-		  <div>
-			<button id="close-inventory">X</button>
-			<h3>Inventory</h3>
-			<ul id="inventory-list"></ul>
-		  </div>
-		</div>
+    <div id="popup-resource"></div>
+    <div id="mining-timer" class="hidden">
+      <img src="1.gif" alt="Pulsing GIF" id="gif">
+    </div>
+    <div id="timer-countdown">10</div>
+  </div>
 
-		<div id="popup-resource"></div>
-
-		<div id="mining-timer" class="hidden">
-		  <img src="1.gif" alt="Pulsing GIF" id="gif">
-		  </div>
-		  <div id="timer-countdown">10</div>
-		</div>
-
-		<div id="leaderboard" class="hidden">
-		  <p>Leaderboard coming soon...</p>
-		</div>
-
-
-
-	<script async src="https://telegram.org/js/telegram-widget.js?7"
+  <!-- Telegram Login Widget -->
+  <script async src="https://telegram.org/js/telegram-widget.js?7"
     data-telegram-login="TheMineCryptoBot" 
     data-size="large"
     data-radius="10"
     data-request-access="write"
     data-auth-url="https://mining-pink.vercel.app/api/authenticate">
-	</script>
-
+  </script>
 
   <script src="script.js"></script>
+
+  <script>
+    // Check if the user has already logged in (session or cookie-based)
+    window.onload = function() {
+      const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+      
+      if (token) {
+        // If token exists, send the token or user data to check in the backend
+        fetch('/api/check-auth', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log("User authenticated. Hiding Telegram widget.");
+            document.querySelector('script[data-telegram-login]').style.display = 'none';
+          } else {
+            console.log("User not authenticated.");
+            document.querySelector('script[data-telegram-login]').style.display = 'block'; // Show widget
+          }
+        });
+      } else {
+        document.querySelector('script[data-telegram-login]').style.display = 'block'; // Show widget
+      }
+    }
+  </script>
 </body>
 </html>
