@@ -50,15 +50,11 @@ async function finishMining() {
   popup.className = `active ${resources[resourceType].rarity}`;
   setTimeout(() => (popup.className = ""), 1000);
 
-  // Assuming `existingUser` (or the current user data) contains `telegram_id`
-  const telegramId = existingUser.telegram_id;  // Access this from the user data already fetched from your backend
-  
   // Send the mining results to the backend
-  await sendMiningResult(resourceType, telegramId);
+  await sendMiningResult(resourceType);
 }
 
-
-async function sendMiningResult(resourceType, telegramId) {
+async function sendMiningResult(resourceType) {
   try {
     const response = await fetch('/api/updateResources', {
       method: 'POST',
@@ -66,9 +62,8 @@ async function sendMiningResult(resourceType, telegramId) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        telegram_id: telegramId,  // Send the user's Telegram ID to identify the user
-        resourceType: resourceType,  // The resource type (gold, silver, copper)
-        quantity: 1,  // Amount of resources mined, adjust as needed
+        resourceType: resourceType,
+        quantity: 1, // Assuming 1 resource is mined for this example, adjust as needed
       }),
     });
 
