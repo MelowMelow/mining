@@ -11,6 +11,12 @@ document.getElementById("inventory-button").addEventListener("click", toggleInve
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
+function getTelegramId() {
+  // Get the Telegram ID from localStorage
+  return localStorage.getItem('telegram_id');
+}
+
+
 function startMining() {
   // If the user is already mining or doesn't have enough energy, don't start mining
   if (isMining || energy < 30) return;
