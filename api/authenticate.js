@@ -60,20 +60,54 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Invalid signature' });
         }
 
-        // Check if user exists or create new
-        const { data: existingUser, error: existError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('telegram_id', id)
-            .single();
+		// Check if user exists or create new
+		const { data: existingUser, error: existError } = await supabase
+			.from('users')
+			.select('*')
+			.eq('telegram_id', id)
+			.single();
 
-        if (existingUser) {
-            return res.status(200).json({ 
-                success: true, 
-                user: [existingUser],
-                isNewUser: false 
-            });
-        }
+		if (existError) {
+			return res.status(500).json({
+				success: false,
+				message: 'Error checking user existence',
+				error: existError.message,
+			});
+		}
+
+		if (existingUser) {
+			// Load user's resources (gold, silver, copper, etc.)
+			const { data: userResources, error: resourceError } = await supabase
+				.from('resources')
+				.select('*')
+				.eq('user_id', existingUser.id)
+				.single(); // Assuming 'user_id' links 'resources' to 'users'
+
+			if (resourceError) {
+				return res.status(500).json({
+					success: false,
+					message: 'Error fetching user resources',
+					error: resourceError.message,
+				});
+			}
+
+			// If resources exist, include them in the response
+			const currentUserStats = userResources || { gold: 0, silver: 0, copper: 0 };
+
+			return res.status(200).json({
+				success: true,
+				user: [existingUser],
+				isNewUser: false,
+				resources: currentUserStats,
+			});
+		} else {
+			// Handle the case where the user doesn't exist
+			return res.status(404).json({
+				success: false,
+				message: 'User not found',
+			});
+		}
+
 
         // Insert new user
         const { data: newUser, error: insertError } = await supabase
