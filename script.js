@@ -50,11 +50,15 @@ async function finishMining() {
   popup.className = `active ${resources[resourceType].rarity}`;
   setTimeout(() => (popup.className = ""), 1000);
 
+  // Assuming `existingUser` (or the current user data) contains `telegram_id`
+  const telegramId = existingUser.telegram_id;  // Access this from the user data already fetched from your backend
+  
   // Send the mining results to the backend
-  await sendMiningResult(resourceType);
+  await sendMiningResult(resourceType, telegramId);
 }
 
-async function sendMiningResult(resourceType) {
+
+async function sendMiningResult(resourceType, telegramId) {
   try {
     const response = await fetch('/api/updateResources', {
       method: 'POST',
@@ -62,8 +66,9 @@ async function sendMiningResult(resourceType) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        resourceType: resourceType,
-        quantity: 1, // Assuming 1 resource is mined for this example, adjust as needed
+        telegram_id: telegramId,  // Send the user's Telegram ID to identify the user
+        resourceType: resourceType,  // The resource type (gold, silver, copper)
+        quantity: 1,  // Amount of resources mined, adjust as needed
       }),
     });
 
@@ -123,19 +128,3 @@ function toggleLeaderboard() {
   document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
 }
 
-const telegramId = "user-telegram-id";  // Assuming you have the Telegram ID available when the user interacts
-
-const response = await fetch('/api/updateResources', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        telegram_id: telegramId,  // Include Telegram ID to identify the user
-        resourceType: 'gold',     // Specify which resource (e.g., gold)
-        quantity: 1               // Specify the amount of the resource
-    }),
-});
-
-const result = await response.json();
-console.log("Server Response:", result);
