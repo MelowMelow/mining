@@ -16,6 +16,36 @@ function getUserId() {
   return 1; // Placeholder user ID
 }
 
+// Function to load resources from the database
+async function loadUserResources() {
+  const userId = getUserId(); // Replace with the actual method for getting the user ID
+
+  try {
+    // Fetch resources for the current user from the database
+    const { data: userResources, error } = await supabase
+      .from("resources")
+      .select("gold, silver, copper")
+      .eq("user_id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error loading user resources:", error);
+      return;
+    }
+
+    // Update local resources with values from the database
+    resources.gold.count = userResources.gold || 0;
+    resources.silver.count = userResources.silver || 0;
+    resources.copper.count = userResources.copper || 0;
+
+    console.log("User resources loaded successfully:", resources);
+    updateStats(); // Update UI with loaded resources
+    updateInventory();
+  } catch (err) {
+    console.error("Error during resource loading:", err.message);
+  }
+}
+
 // Function to update user stats in the database
 async function updateUserStatsInDB(userId, resourceType, increment) {
   try {
@@ -105,7 +135,8 @@ function finishMining() {
 
 function updateStats() {
   for (let resource in resources) {
-    document.getElementById(`${resource}-count`).innerText = `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
+    document.getElementById(`${resource}-count`).innerText = 
+      `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
   }
 }
 
@@ -146,3 +177,6 @@ function toggleLeaderboard() {
   leaderboard.classList.toggle("hidden");
   document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
 }
+
+// Load resources from the database on page load
+loadUserResources();
