@@ -122,3 +122,27 @@ function toggleLeaderboard() {
   leaderboard.classList.toggle("hidden");
   document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
 }
+
+// Retrieve the JWT from localStorage (if stored there)
+const userToken = localStorage.getItem('user-token');  // or however you're storing the JWT
+
+if (!userToken) {
+    console.log("No JWT token found in localStorage");
+    return;  // No point in making the request if there's no token
+}
+
+// Send POST request with token
+const response = await fetch('/api/updateResources', {
+    method: 'POST',
+    headers: {
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        resourceType: 'gold',  // Change depending on resource
+        quantity: 1,           // Quantity to update
+    }),
+});
+
+const result = await response.json();
+console.log("Server response:", result);
