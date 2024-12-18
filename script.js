@@ -57,30 +57,6 @@ function updateStats() {
   }
 }
 
-async function updateDatabaseResources() {
-  try {
-    const response = await fetch("/api/update-resources", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        gold: resources.gold.count,
-        silver: resources.silver.count,
-        copper: resources.copper.count,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to update resources in the database");
-    }
-
-    const data = await response.json();
-    console.log("Database update successful:", data);
-  } catch (error) {
-    console.error("Error updating database:", error);
-  }
-}
 
 
 function updateEnergy() {
