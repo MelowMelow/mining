@@ -39,22 +39,40 @@ function startMining() {
 }
 
 async function finishMining() {
-  const popup = document.getElementById("popup-resource");
+  // Generate a random resource from the mining process
   const resourceType = generateResource();
 
+  // Update the resource count in the frontend
   resources[resourceType].count++;
   updateStats();
   updateInventory();
 
+  // Show a popup indicating the mined resource
+  const popup = document.getElementById("popup-resource");
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
-  setTimeout(() => (popup.className = ""), 1000);
+  setTimeout(() => {
+    popup.className = "";  // Remove the popup class after a brief moment
+  }, 1000);
 
-  // Send the mining results to the backend
-  await sendMiningResult(resourceType);
+  // Fetch the Telegram ID for the user
+  const telegramId = getTelegramId(); // Assumes you have a function that retrieves it from localStorage
+
+  if (!telegramId) {
+    console.error("Telegram ID is not available.");
+    return;
+  }
+
+  // Send the mined resource data and the user's Telegram ID to the backend
+  try {
+    await sendMiningResult(resourceType, telegramId);
+  } catch (error) {
+    console.error("Error sending mining results:", error);
+  }
 }
 
-async function sendMiningResult(resourceType) {
+
+async function sendMiningResult(resourceType, telegramId) {
   try {
     const response = await fetch('/api/updateResources', {
       method: 'POST',
@@ -62,10 +80,23 @@ async function sendMiningResult(resourceType) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        resourceType: resourceType,
-        quantity: 1, // Assuming 1 resource is mined for this example, adjust as needed
+        telegram_id: telegramId,  // Send the user's Telegram ID
+        resourceType: resourceType,  // Resource being mined (gold, silver, etc.)
+        quantity: 1, // Amount of resources mined (adjust as necessary)
       }),
     });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log('Resources updated successfully:', result.resources);
+    } else {
+      console.error('Error updating resources:', result.message);
+    }
+  } catch (error) {
+    console.error('Error sending mining results:', error);
+  }
+}
 
     const result = await response.json();
 

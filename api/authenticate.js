@@ -66,7 +66,7 @@ export default async function handler(req, res) {
 			.select('*')
 			.eq('telegram_id', id)
 			.single();
-
+		
 		if (existError) {
 			return res.status(500).json({
 				success: false,
@@ -82,6 +82,8 @@ export default async function handler(req, res) {
 				.select('*')
 				.eq('user_id', existingUser.id)
 				.single(); // Assuming 'user_id' links 'resources' to 'users'
+				
+				localStorage.setItem('telegram_id', response.telegram_id);  // Save it after successful authentication
 
 			if (resourceError) {
 				return res.status(500).json({
@@ -93,7 +95,7 @@ export default async function handler(req, res) {
 
 			// If resources exist, include them in the response
 			const currentUserStats = userResources || { gold: 0, silver: 0, copper: 0 };
-
+			
 			return res.status(200).json({
 				success: true,
 				user: [existingUser],
@@ -121,6 +123,8 @@ export default async function handler(req, res) {
                 language_code: language_code || null
             }])
             .select();
+			localStorage.setItem('telegram_id', response.telegram_id);  // Save it after successful authentication
+
 
         if (insertError) {
             console.error('User registration error:', insertError);
