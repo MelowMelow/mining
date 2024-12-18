@@ -13,6 +13,7 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 
 function getTelegramId() {
   // Get the Telegram ID from localStorage
+  localStorage.setItem('telegram_id', telegramId); // Store Telegram ID in localStorage
   return localStorage.getItem('telegram_id');
 }
 
@@ -31,7 +32,7 @@ function startMining() {
     console.error("Telegram ID is not available.");
     return;
   }
-  localStorage.setItem('telegram_id', telegramId); // Store Telegram ID in localStorage
+  
 
   // Show the timer and countdown
   const miningTimer = document.getElementById("mining-timer");
