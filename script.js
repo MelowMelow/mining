@@ -12,12 +12,22 @@ document.getElementById("close-inventory").addEventListener("click", toggleInven
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
 function startMining() {
+  // If the user is already mining or doesn't have enough energy, don't start mining
   if (isMining || energy < 30) return;
 
   isMining = true;
   energy -= 30;
   updateEnergy();
 
+  // Set the Telegram ID to localStorage as soon as mining starts
+  const telegramId = getTelegramId(); // Assuming getTelegramId fetches from localStorage
+  if (!telegramId) {
+    console.error("Telegram ID is not available.");
+    return;
+  }
+  localStorage.setItem('telegram_id', telegramId); // Store Telegram ID in localStorage
+
+  // Show the timer and countdown
   const miningTimer = document.getElementById("mining-timer");
   const timerCountdown = document.getElementById("timer-countdown");
   miningTimer.classList.remove("hidden");
@@ -33,6 +43,8 @@ function startMining() {
       clearInterval(interval);
       miningTimer.classList.add("hidden");
       isMining = false;
+
+      // After the 10 seconds, finish mining and update resources
       finishMining();
     }
   }, 1000);
@@ -55,9 +67,9 @@ async function finishMining() {
     popup.className = "";  // Remove the popup class after a brief moment
   }, 1000);
 
-  // Fetch the Telegram ID for the user
-  const telegramId = getTelegramId(); // Assumes you have a function that retrieves it from localStorage
-
+  // Fetch the Telegram ID from localStorage (it was set when mining started)
+  const telegramId = localStorage.getItem('telegram_id');
+  
   if (!telegramId) {
     console.error("Telegram ID is not available.");
     return;
@@ -70,7 +82,6 @@ async function finishMining() {
     console.error("Error sending mining results:", error);
   }
 }
-
 
 async function sendMiningResult(resourceType, telegramId) {
   try {
@@ -85,18 +96,6 @@ async function sendMiningResult(resourceType, telegramId) {
         quantity: 1, // Amount of resources mined (adjust as necessary)
       }),
     });
-
-    const result = await response.json();
-
-    if (result.success) {
-      console.log('Resources updated successfully:', result.resources);
-    } else {
-      console.error('Error updating resources:', result.message);
-    }
-  } catch (error) {
-    console.error('Error sending mining results:', error);
-  }
-}
 
     const result = await response.json();
 
@@ -153,4 +152,3 @@ function toggleLeaderboard() {
   leaderboard.classList.toggle("hidden");
   document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
 }
-
