@@ -83,7 +83,7 @@ export default async function handler(req, res) {
 				.eq('user_id', existingUser.id)
 				.single(); // Assuming 'user_id' links 'resources' to 'users'
 				
-				localStorage.setItem('telegram_id', response.telegram_id);  // Save it after successful authentication
+				
 
 			if (resourceError) {
 				return res.status(500).json({
@@ -123,7 +123,7 @@ export default async function handler(req, res) {
                 language_code: language_code || null
             }])
             .select();
-			localStorage.setItem('telegram_id', response.telegram_id);  // Save it after successful authentication
+			
 
 
         if (insertError) {
