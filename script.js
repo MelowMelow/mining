@@ -1,8 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
-// Initialize Supabase client
-const supabase = createClient("your-supabase-url", "your-supabase-key");
-
 let energy = 1000;
 let isMining = false;
 let resources = {
@@ -11,47 +6,6 @@ let resources = {
   copper: { count: 0, rarity: "common" },
 };
 
-// Example: Replace with your actual method to retrieve user ID
-function getUserId() {
-  return 1; // Placeholder user ID
-}
-
-// Function to update user stats in the database
-async function updateUserStatsInDB(userId, resourceType, increment) {
-  try {
-    // Fetch the current stats for the user
-    const { data: currentStats, error: fetchError } = await supabase
-      .from("resources")
-      .select(resourceType)
-      .eq("user_id", userId)
-      .single();
-
-    if (fetchError) {
-      console.error(`Error fetching ${resourceType} stats:`, fetchError);
-      return;
-    }
-
-    // Calculate new count
-    const currentCount = currentStats?.[resourceType] || 0;
-    const newCount = currentCount + increment;
-
-    // Update the database with the new count
-    const { error: updateError } = await supabase
-      .from("resources")
-      .update({ [resourceType]: newCount })
-      .eq("user_id", userId);
-
-    if (updateError) {
-      console.error(`Error updating ${resourceType}:`, updateError);
-    } else {
-      console.log(`${resourceType} successfully updated to ${newCount}`);
-    }
-  } catch (error) {
-    console.error("Error during resource update:", error);
-  }
-}
-
-// DOM Event Listeners
 document.getElementById("mine-button").addEventListener("click", startMining);
 document.getElementById("inventory-button").addEventListener("click", toggleInventory);
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
@@ -88,19 +42,13 @@ function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
 
-  // Increment resource count locally
   resources[resourceType].count++;
   updateStats();
   updateInventory();
 
-  // Show the popup notification
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
   setTimeout(() => (popup.className = ""), 1000);
-
-  // Update resource stats in the database
-  const userId = getUserId(); // Replace with actual method to get user ID
-  updateUserStatsInDB(userId, resourceType, 1);
 }
 
 function updateStats() {
