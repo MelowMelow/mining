@@ -60,56 +60,20 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Invalid signature' });
         }
 
-		// Check if user exists or create new
-		const { data: existingUser, error: existError } = await supabase
-			.from('users')
-			.select('*')
-			.eq('telegram_id', id)
-			.single();
-		
-		if (existError) {
-			return res.status(500).json({
-				success: false,
-				message: 'Error checking user existence',
-				error: existError.message,
-			});
-		}
+        // Check if user exists or create new
+        const { data: existingUser, error: existError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('telegram_id', id)
+            .single();
 
-		if (existingUser) {
-			// Load user's resources (gold, silver, copper, etc.)
-			const { data: userResources, error: resourceError } = await supabase
-				.from('resources')
-				.select('*')
-				.eq('user_id', existingUser.id)
-				.single(); // Assuming 'user_id' links 'resources' to 'users'
-				
-				
-
-			if (resourceError) {
-				return res.status(500).json({
-					success: false,
-					message: 'Error fetching user resources',
-					error: resourceError.message,
-				});
-			}
-
-			// If resources exist, include them in the response
-			const currentUserStats = userResources || { gold: 0, silver: 0, copper: 0 };
-			
-			return res.status(200).json({
-				success: true,
-				user: [existingUser],
-				isNewUser: false,
-				resources: currentUserStats,
-			});
-		} else {
-			// Handle the case where the user doesn't exist
-			return res.status(404).json({
-				success: false,
-				message: 'User not found',
-			});
-		}
-
+        if (existingUser) {
+            return res.status(200).json({ 
+                success: true, 
+                user: [existingUser],
+                isNewUser: false 
+            });
+        }
 
         // Insert new user
         const { data: newUser, error: insertError } = await supabase
@@ -123,8 +87,6 @@ export default async function handler(req, res) {
                 language_code: language_code || null
             }])
             .select();
-			
-
 
         if (insertError) {
             console.error('User registration error:', insertError);
@@ -163,3 +125,26 @@ export default async function handler(req, res) {
     }
 }
 
+app.post('/api/update-resources', async (req, res) => {
+  try {
+    const { gold, silver, copper } = req.body;
+
+    // Replace with the authenticated user's ID
+    const userId = req.user.id; 
+
+    const { data, error } = await supabase
+      .from('resources')
+      .update({ gold, silver, copper })
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error("Error updating resources:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
