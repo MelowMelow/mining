@@ -33,7 +33,10 @@ export default async function handler(req, res) {
             // Update or insert the user's resource record in the database
             const { data, error } = await supabase
                 .from('resources')
-                .upsert([{ user_id: userId, [resourceType]: quantity }], { onConflict: ['user_id'] });
+                .upsert([
+                    { user_id: userId, [resourceType]: quantity }
+                ], 
+                { onConflict: ['user_id'] });
 
             if (error) {
                 return res.status(500).json({ success: false, message: error.message });
