@@ -38,6 +38,25 @@ function startMining() {
   }, 1000);
 }
 
+async function updateResourcesOnServer(resource) {
+  try {
+    const response = await fetch('/api/updateResources', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resourceType: resource })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update resources on the server');
+    }
+
+    const data = await response.json();
+    console.log("Server updated successfully:", data);
+  } catch (error) {
+    console.error("Error updating resources on server:", error);
+  }
+}
+
 function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
@@ -46,15 +65,20 @@ function finishMining() {
   updateStats();
   updateInventory();
 
+  // Update resource on server
+  updateResourcesOnServer(resourceType);
+
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
   setTimeout(() => (popup.className = ""), 1000);
 }
 
+
 function updateStats() {
   for (let resource in resources) {
     document.getElementById(`${resource}-count`).innerText = `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
   }
+  
 }
 
 

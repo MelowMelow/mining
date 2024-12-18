@@ -1,78 +1,39 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    const { telegram_id, resourceType, quantity } = req.body;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-    if (!telegram_id || !resourceType || quantity === undefined) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid request parameters',
-      });
+  const { resourceType } = req.body;
+
+  if (!['gold', 'silver', 'copper'].includes(resourceType)) {
+    return res.status(400).json({ error: 'Invalid resource type' });
+  }
+
+  try {
+    // Assuming user is authenticated and their `user_id` is stored in session/cookies
+    const userId = req.user.id; // Replace with your actual user identification mechanism
+
+    // Update resources table
+    const { data, error } = await supabase
+      .from('resources')
+      .update({ [resourceType]: supabase.raw(`${resourceType} + 1`) })
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error updating resources:', error);
+      return res.status(500).json({ error: error.message });
     }
 
-    try {
-      // Find user by Telegram ID
-      const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('telegram_id', telegram_id)
-        .single();
-
-      if (userError) {
-        return res.status(500).json({
-          success: false,
-          message: 'Error fetching user',
-        });
-      }
-
-      // Check if user exists
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found',
-        });
-      }
-
-      const userId = user.id; // Use the user's database ID
-
-      // Update the resources for this user
-      const { data, error } = await supabase
-        .from('resources')
-        .upsert(
-          [
-            {
-              user_id: userId,
-              [resourceType]: quantity,
-            },
-          ],
-          { onConflict: ['user_id'] }
-        );
-
-      if (error) {
-        return res.status(500).json({
-          success: false,
-          message: 'Error updating resources',
-        });
-      }
-
-      // Respond back with updated resources data
-      res.status(200).json({
-        success: true,
-        resources: data[0],  // Returns the resource data for the user
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Server error while updating resources',
-      });
-    }
-  } else {
-    res.status(405).json({
-      success: false,
-      message: 'Method Not Allowed',
-    });
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.error('Error handling resource update:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
