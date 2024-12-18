@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js"; 
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 
@@ -91,6 +91,22 @@ export default async function handler(req, res) {
         if (insertError) {
             console.error('User registration error:', insertError);
             return res.status(500).json({ error: insertError.message });
+        }
+
+        // Set up resources for the new user
+        const { data: resourceSetup, error: resourceError } = await supabase
+            .from('resources')
+            .insert([
+                {
+                    user_id: newUser[0].id,
+                    resource_type: 'default',
+                    resource_value: 0 // Adjust the default resource value as needed
+                }
+            ]);
+
+        if (resourceError) {
+            console.error('Resource setup error:', resourceError);
+            return res.status(500).json({ error: resourceError.message });
         }
 
         return res.status(200).json({ 
