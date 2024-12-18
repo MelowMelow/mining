@@ -93,14 +93,15 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: insertError.message });
         }
 
-        // Set up resources for the new user
+        // Set up initial stats in the resources table
         const { data: resourceSetup, error: resourceError } = await supabase
             .from('resources')
             .insert([
                 {
                     user_id: newUser[0].id,
-                    resource_type: 'default',
-                    resource_value: 0 // Adjust the default resource value as needed
+                    gold: 0,    // Default gold value
+                    silver: 0,  // Default silver value
+                    copper: 0   // Default copper value
                 }
             ]);
 
