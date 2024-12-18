@@ -125,26 +125,3 @@ export default async function handler(req, res) {
     }
 }
 
-app.post('/api/update-resources', async (req, res) => {
-  try {
-    const { gold, silver, copper } = req.body;
-
-    // Replace with the authenticated user's ID
-    const userId = req.user.id; 
-
-    const { data, error } = await supabase
-      .from('resources')
-      .update({ gold, silver, copper })
-      .eq('user_id', userId);
-
-    if (error) {
-      console.error("Error updating resources:", error);
-      return res.status(500).json({ error: error.message });
-    }
-
-    res.status(200).json({ success: true, data });
-  } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
