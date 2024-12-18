@@ -38,7 +38,7 @@ function startMining() {
   }, 1000);
 }
 
-function finishMining() {
+async function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
 
@@ -49,6 +49,34 @@ function finishMining() {
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
   setTimeout(() => (popup.className = ""), 1000);
+
+  // Send the mining results to the backend
+  await sendMiningResult(resourceType);
+}
+
+async function sendMiningResult(resourceType) {
+  try {
+    const response = await fetch('/api/updateResources', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        resourceType: resourceType,
+        quantity: 1, // Assuming 1 resource is mined for this example, adjust as needed
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log('Resources updated successfully:', result.resources);
+    } else {
+      console.error('Error updating resources:', result.message);
+    }
+  } catch (error) {
+    console.error('Error sending mining results:', error);
+  }
 }
 
 function updateStats() {
@@ -56,8 +84,6 @@ function updateStats() {
     document.getElementById(`${resource}-count`).innerText = `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
   }
 }
-
-
 
 function updateEnergy() {
   const energyBar = document.getElementById("energy-fill");
