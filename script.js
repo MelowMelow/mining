@@ -84,22 +84,6 @@ function updateStats() {
     document.getElementById(`${resource}-count`).innerText = `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
   }
 }
-const telegramId = "user-telegram-id";  // Assuming you have the Telegram ID available when the user interacts
-
-const response = await fetch('/api/updateResources', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        telegram_id: telegramId,  // Include Telegram ID to identify the user
-        resourceType: 'gold',     // Specify which resource (e.g., gold)
-        quantity: 1               // Specify the amount of the resource
-    }),
-});
-
-const result = await response.json();
-console.log("Server Response:", result);
 
 function updateEnergy() {
   const energyBar = document.getElementById("energy-fill");
@@ -138,3 +122,20 @@ function toggleLeaderboard() {
   leaderboard.classList.toggle("hidden");
   document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
 }
+
+const telegramId = "user-telegram-id";  // Assuming you have the Telegram ID available when the user interacts
+
+const response = await fetch('/api/updateResources', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        telegram_id: telegramId,  // Include Telegram ID to identify the user
+        resourceType: 'gold',     // Specify which resource (e.g., gold)
+        quantity: 1               // Specify the amount of the resource
+    }),
+});
+
+const result = await response.json();
+console.log("Server Response:", result);
