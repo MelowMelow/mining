@@ -39,53 +39,21 @@ function startMining() {
 }
 
 async function finishMining() {
-  const popup = document.getElementById("popup-resource");
+  // Generate a random resource from the mining process
   const resourceType = generateResource();
 
+  // Update the resource count in the frontend
   resources[resourceType].count++;
   updateStats();
   updateInventory();
 
+  // Show a popup indicating the mined resource
+  const popup = document.getElementById("popup-resource");
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
-  setTimeout(() => (popup.className = ""), 1000);
-
-  // Send the mining results to the backend
-  await sendMiningResult(resourceType);
-
-  // After mining finishes, authenticate the user
-  const initData = getTelegramData();  // Replace with the actual data needed to authenticate the user
-  await authenticateUser(initData);  // Call authenticateUser with the necessary data
-}
-
-// Example function to retrieve necessary Telegram data (replace with your actual data)
-function getTelegramData() {
-  // Assuming you might have already stored the data or can access it here
-  const telegramData = { /* your Telegram user data here */ };
-  
-  return telegramData;
-}
-
-async function authenticateUser(initData) {
-  const response = await fetch('/api/authenticate', {
-    method: 'POST',
-    body: JSON.stringify({ initData }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  const data = await response.json();
-
-  if (data.success) {
-    // Store the Telegram ID in localStorage on the client-side
-    localStorage.setItem('telegram_id', data.telegram_id);
-    console.log('Telegram ID stored in localStorage:', data.telegram_id);
-  } else {
-    console.error('Error authenticating user:', data.error);
-  }
-}
-
+  setTimeout(() => {
+    popup.className = "";  // Remove the popup class after a brief moment
+  }, 1000);
 
   // Fetch the Telegram ID for the user
   const telegramId = getTelegramId(); // Assumes you have a function that retrieves it from localStorage
