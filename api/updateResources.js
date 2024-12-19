@@ -10,17 +10,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { resourceType } = req.body;
+  const { resourceType, userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
 
   if (!['gold', 'silver', 'copper'].includes(resourceType)) {
     return res.status(400).json({ error: 'Invalid resource type' });
   }
 
   try {
-    // Assuming user is authenticated and their `user_id` is stored in session/cookies
-    const userId = req.user.id; // Replace with your actual user identification mechanism
-
-    // Update resources table
     const { data, error } = await supabase
       .from('resources')
       .update({ [resourceType]: supabase.raw(`${resourceType} + 1`) })

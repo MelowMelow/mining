@@ -6,10 +6,33 @@ let resources = {
   copper: { count: 0, rarity: "common" },
 };
 
+let userId; // To store the authenticated user ID
+
 document.getElementById("mine-button").addEventListener("click", startMining);
 document.getElementById("inventory-button").addEventListener("click", toggleInventory);
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
+
+// Authenticate and store user ID
+async function authenticateUser() {
+  try {
+    const response = await fetch('/api/authenticate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: telegramInitData }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      userId = data.user.id;
+      console.log("Authenticated user:", userId);
+    } else {
+      console.error("Authentication failed:", data.error);
+    }
+  } catch (error) {
+    console.error("Error during authentication:", error);
+  }
+}
 
 function startMining() {
   if (isMining || energy < 30) return;
@@ -39,11 +62,16 @@ function startMining() {
 }
 
 async function updateResourcesOnServer(resource) {
+  if (!userId) {
+    console.error('User ID is not set!');
+    return;
+  }
+
   try {
     const response = await fetch('/api/updateResources', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resourceType: resource })
+      body: JSON.stringify({ resourceType: resource, userId }),
     });
 
     if (!response.ok) {
@@ -73,15 +101,11 @@ function finishMining() {
   setTimeout(() => (popup.className = ""), 1000);
 }
 
-
 function updateStats() {
   for (let resource in resources) {
     document.getElementById(`${resource}-count`).innerText = `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
   }
-  
 }
-
-
 
 function updateEnergy() {
   const energyBar = document.getElementById("energy-fill");
