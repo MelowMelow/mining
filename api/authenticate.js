@@ -6,9 +6,10 @@ dotenv.config();
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-export default async function handler(req, res) {
+const handler = async (req, res) => {
     console.log("Received authentication request");
 
+    // Ensure only POST requests are allowed
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -16,6 +17,7 @@ export default async function handler(req, res) {
     try {
         const { initData } = req.body;
 
+        // Ensure initData exists in the body
         if (!initData) {
             return res.status(400).json({ error: 'No Telegram init data provided' });
         }
@@ -107,7 +109,6 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: resourceError.message });
         }
 
-        // Log new user registration
         console.log(`New user with Telegram ID: ${id} successfully registered.`);
 
         return res.status(200).json({
@@ -123,3 +124,6 @@ export default async function handler(req, res) {
         });
     }
 }
+
+// Export the handler function to be used in serverless
+export default handler;
