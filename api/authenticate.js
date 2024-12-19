@@ -98,6 +98,7 @@ const handler = async (req, res) => {
         const { data: resourceSetup, error: resourceError } = await supabase
             .from('resources')
             .insert([{
+				telegram_id: id,
                 user_id: newUser[0].id,
                 gold: 0,
                 silver: 0,
