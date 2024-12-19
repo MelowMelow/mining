@@ -10,9 +10,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { resourceType, userId } = req.body;
+  const { resourceType, id } = req.body; // `id` from the users table
 
-  if (!userId) {
+  if (!id) {
     return res.status(400).json({ error: 'User ID is required' });
   }
 
@@ -20,11 +20,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid resource type' });
   }
 
+  console.log("Received request to update resource:", { id, resourceType });
+
   try {
+    // Attempt to update the database using `user_id` matching `id`
     const { data, error } = await supabase
       .from('resources')
       .update({ [resourceType]: supabase.raw(`${resourceType} + 1`) })
-      .eq('user_id', userId);
+      .eq('user_id', id);
+
+    console.log("Update operation result:", { data, error });
 
     if (error) {
       console.error('Error updating resources:', error);

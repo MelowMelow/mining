@@ -71,7 +71,7 @@ async function updateResourcesOnServer(resource) {
     const response = await fetch('/api/updateResources', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resourceType: resource, userId }),
+      body: JSON.stringify({ resourceType: resource, id: userId }),
     });
 
     if (!response.ok) {
