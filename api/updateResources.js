@@ -23,18 +23,20 @@ export default async function handler(req, res) {
   console.log("Received request to update resource:", { id, resourceType });
 
   try {
-    // Call the increment_resource function directly via RPC
-    const { data, error } = await supabase.rpc("increment_resource", {
-      user_id: id,  // Pass user_id (integer)
-      resource: resourceType,  // Pass resource type (string)
-    });
+    // Attempt to increment the resource using the RPC function
+    const { data, error } = await supabase
+      .rpc("increment_resource", {
+        p_user_id: id,         // Pass 'id' as 'p_user_id' to match the function's parameter
+        resource: resourceType // Pass the resource type (e.g., "gold", "silver", "copper")
+      });
+
+    console.log("Update operation result:", { data, error });
 
     if (error) {
       console.error("Error updating resources:", error);
       return res.status(500).json({ error: error.message });
     }
 
-    console.log("Resource incremented successfully:", data);
     return res.status(200).json({ success: true, data });
   } catch (error) {
     console.error("Error handling resource update:", error);
