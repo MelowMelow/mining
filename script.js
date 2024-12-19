@@ -77,19 +77,56 @@ function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
 
+  // Increment resource count
   resources[resourceType].count++;
+
+  // Update stats and inventory (you may want to update UI accordingly)
   updateStats();
   updateInventory();
-
-  // Update the resource on the server
-  console.log("Calling updateResourcesOnServer with resource:", resourceType);
-  updateResourcesOnServer(resourceType);
 
   // Show mining popup with the updated resource
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
   setTimeout(() => (popup.className = ""), 1000);
+
+  // At the end of the mining process, update the resource on the server
+  console.log("Calling updateResourcesOnServer with resource:", resourceType);
+  updateResourcesOnServer(resourceType);
 }
+
+// Function to call backend and update the resource count on the server
+async function updateResourcesOnServer(resourceType) {
+  const userId = localStorage.getItem("userId"); // Retrieve the user's ID from localStorage
+
+  if (!userId) {
+    console.error("User ID is not available.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/updateResources", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: userId,
+        resourceType: resourceType, // 'gold', 'silver', or 'copper'
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log(`Resource updated successfully for ${resourceType}.`);
+    } else {
+      console.error("Error updating resource:", data.error);
+    }
+  } catch (error) {
+    console.error("Error during resource update:", error);
+  }
+}
+
 
 // Update the displayed stats for the user
 function updateStats() {
