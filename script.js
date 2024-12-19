@@ -15,8 +15,14 @@ document.getElementById("inventory-button").addEventListener("click", toggleInve
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
+// Assuming you have access to the telegram_id after authentication
+function setUserIdFromTelegram() {
+  const telegramId = "your_telegram_id_here";  // Replace this with actual variable from authentication flow
+  
+  
+
 async function startMining() {
-  const userId = localStorage.getItem("id");
+  const userId = localStorage.getItem("userId");
 
   if (!userId) {
     console.error("User ID not found in localStorage. Cannot mine resources.");

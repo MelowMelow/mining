@@ -98,7 +98,6 @@ const handler = async (req, res) => {
         const { data: resourceSetup, error: resourceError } = await supabase
             .from('resources')
             .insert([{
-
                 user_id: newUser[0].id,
                 gold: 0,
                 silver: 0,
@@ -123,6 +122,7 @@ const handler = async (req, res) => {
             error: error.message,
             stack: error.stack 
         });
+	localStorage.setItem('user_id', id);
     }
 }
 
