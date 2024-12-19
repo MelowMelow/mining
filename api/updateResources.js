@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js"; 
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -11,9 +11,17 @@ export default async function handler(req, res) {
   }
 
   const { resourceType, id } = req.body;
+  const storedUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
+  // Ensure the correct user is making the request
   if (!id) {
     return res.status(400).json({ error: "User ID is required" });
+  }
+
+  // Compare user ID in request with ID in localStorage
+  if (storedUserId !== id) {
+    console.error("User ID mismatch. Authentication failed.");
+    return res.status(403).json({ error: "Unauthorized request" });
   }
 
   if (!["gold", "silver", "copper"].includes(resourceType)) {
@@ -29,7 +37,7 @@ export default async function handler(req, res) {
       .upsert([
         {
           user_id: id,
-          [resourceType]: supabase.raw(`${resourceType} + 1`),  // Increment resource count
+          [resourceType]: supabase.raw(`${resourceType} + 1`), // Increment resource count
         },
       ])
       .select();
