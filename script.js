@@ -15,6 +15,7 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 
 async function authenticateUser() {
   try {
+    // Make the API request to authenticate the user with the provided Telegram data
     const response = await fetch('/api/authenticate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -22,9 +23,21 @@ async function authenticateUser() {
     });
 
     const data = await response.json();
+
+    // Check if authentication was successful and handle response accordingly
     if (data.success) {
-      userId = data.user.id;
-      console.log("Authenticated user:", userId);
+      // Attempt to get the existing user from the database
+      const existingUser = data.user; // Assuming user is already fetched from the API in `data.user`
+      
+      if (existingUser) {
+        userId = existingUser.id; // Store the authenticated user's ID
+        console.log("Authenticated user:", userId);
+      } else {
+        console.log("User does not exist in the database. Registering as new user.");
+        // Optionally, add logic for registering the user if they're not in the database.
+        // Example: You may want to send another request to create a new user in the database
+      }
+
     } else {
       console.error("Authentication failed:", data.error);
       showAuthenticationFailedMessage();
@@ -35,6 +48,7 @@ async function authenticateUser() {
   }
 }
 
+// Function to show the "AUTHENTICATION FAILED" message in the middle of the screen
 function showAuthenticationFailedMessage() {
   const messageElement = document.createElement('div');
   messageElement.innerText = "AUTHENTICATION FAILED";
@@ -57,6 +71,7 @@ function showAuthenticationFailedMessage() {
     messageElement.remove();
   }, 5000);
 }
+
 
 
 // Start mining process when the user clicks the mine button
