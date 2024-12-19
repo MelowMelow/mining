@@ -23,14 +23,16 @@ export default async function handler(req, res) {
   console.log("Received request to update resource:", { id, resourceType });
 
   try {
-    // Attempt to increment the resource using the RPC function
+    // Update the resource count directly in the resources table based on user_id
     const { data, error } = await supabase
-      .rpc("increment_resource", {
-        p_user_id: id,         // Pass 'id' as 'p_user_id' to match the function's parameter
-        resource: resourceType // Pass the resource type (e.g., "gold", "silver", "copper")
-      });
-
-    console.log("Update operation result:", { data, error });
+      .from("resources")
+      .upsert([
+        {
+          user_id: id,
+          [resourceType]: supabase.raw(`${resourceType} + 1`),  // Increment resource count
+        },
+      ])
+      .select();
 
     if (error) {
       console.error("Error updating resources:", error);

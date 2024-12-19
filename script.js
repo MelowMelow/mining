@@ -34,8 +34,12 @@ async function authenticateUser() {
   }
 }
 
+// Start mining process when the user clicks the mine button
 function startMining() {
-  if (isMining || energy < 30) return;
+  if (isMining || energy < 30) {
+    console.log("Not enough energy to mine.");
+    return;
+  }
 
   isMining = true;
   energy -= 30;
@@ -61,11 +65,11 @@ function startMining() {
   }, 1000);
 }
 
+// Handle the update of user resources on the server
 async function updateResourcesOnServer(resource) {
   if (!userId) {
     console.error('User ID is not set!');
-	
-    
+    return;
   }
 
   try {
@@ -86,6 +90,7 @@ async function updateResourcesOnServer(resource) {
   }
 }
 
+// Finish mining process: add the resource and update UI and backend
 function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
@@ -94,28 +99,31 @@ function finishMining() {
   updateStats();
   updateInventory();
 
-  // Update resource on server
+  // Update the resource on the server
   console.log("Calling updateResourcesOnServer with resource:", resourceType);
   updateResourcesOnServer(resourceType);
 
-
+  // Show mining popup with the updated resource
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
   setTimeout(() => (popup.className = ""), 1000);
 }
 
+// Update the displayed stats for the user
 function updateStats() {
   for (let resource in resources) {
     document.getElementById(`${resource}-count`).innerText = `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
   }
 }
 
+// Update the energy bar based on remaining energy
 function updateEnergy() {
   const energyBar = document.getElementById("energy-fill");
   energyBar.style.width = `${(energy / 1000) * 100}%`;
   document.getElementById("energy-count").innerText = energy;
 }
 
+// Update inventory UI with current resources
 function updateInventory() {
   const inventoryList = document.getElementById("inventory-list");
   inventoryList.innerHTML = "";
@@ -131,6 +139,7 @@ function updateInventory() {
   }
 }
 
+// Generate a random resource type for mining
 function generateResource() {
   const random = Math.random() * 100;
   if (random < 5) return "gold";
@@ -138,12 +147,15 @@ function generateResource() {
   return "copper";
 }
 
+// Toggle visibility of the inventory
 function toggleInventory() {
   document.getElementById("inventory-frame").classList.toggle("hidden");
 }
 
+// Toggle visibility of the leaderboard
 function toggleLeaderboard() {
   const leaderboard = document.getElementById("leaderboard");
   leaderboard.classList.toggle("hidden");
   document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
 }
+
