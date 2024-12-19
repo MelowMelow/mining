@@ -72,6 +72,9 @@ const handler = async (req, res) => {
                 user: existingUser,
                 isNewUser: false
             });
+		if (typeof window !== "undefined") {
+            localStorage.setItem('user_id', id);
+        }
         } else {
             console.log(`No user found with Telegram ID: ${id}. Registering new user.`);
         }
@@ -122,7 +125,6 @@ const handler = async (req, res) => {
             error: error.message,
             stack: error.stack 
         });
-	localStorage.setItem('user_id', id);
     }
 }
 
