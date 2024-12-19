@@ -123,3 +123,61 @@ export default async function handler(req, res) {
         });
     }
 }
+async function authenticateUser() {
+  try {
+    // Make the API request to authenticate the user with the provided Telegram data
+    const response = await fetch('/api/authenticate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: telegramInitData }),
+    });
+
+    const data = await response.json();
+
+    // Check if authentication was successful and handle response accordingly
+    if (data.success) {
+      // Attempt to get the existing user from the database
+      const existingUser = data.user; // Assuming user is already fetched from the API in `data.user`
+      
+      if (existingUser) {
+        userId = existingUser.id; // Store the authenticated user's ID
+        console.log("Authenticated user:", userId);
+      } else {
+        console.log("User does not exist in the database. Registering as new user.");
+        // Optionally, add logic for registering the user if they're not in the database.
+        // Example: You may want to send another request to create a new user in the database
+      }
+
+    } else {
+      console.error("Authentication failed:", data.error);
+      showAuthenticationFailedMessage();
+    }
+  } catch (error) {
+    console.error("Error during authentication:", error);
+    showAuthenticationFailedMessage();
+  }
+}
+
+// Function to show the "AUTHENTICATION FAILED" message in the middle of the screen
+function showAuthenticationFailedMessage() {
+  const messageElement = document.createElement('div');
+  messageElement.innerText = "AUTHENTICATION FAILED";
+  messageElement.style.position = 'fixed';
+  messageElement.style.top = '50%';
+  messageElement.style.left = '50%';
+  messageElement.style.transform = 'translate(-50%, -50%)';
+  messageElement.style.fontSize = '50px';
+  messageElement.style.color = 'red';
+  messageElement.style.fontWeight = 'bold';
+  messageElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+  messageElement.style.padding = '20px';
+  messageElement.style.borderRadius = '10px';
+  messageElement.style.zIndex = '1000';
+
+  document.body.appendChild(messageElement);
+
+  // Automatically remove the message after 5 seconds
+  setTimeout(() => {
+    messageElement.remove();
+  }, 5000);
+}
