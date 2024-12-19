@@ -16,7 +16,7 @@ document.getElementById("close-inventory").addEventListener("click", toggleInven
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
 async function startMining() {
-  const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("id");
 
   if (!userId) {
     console.error("User ID not found in localStorage. Cannot mine resources.");
