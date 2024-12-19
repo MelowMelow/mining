@@ -15,11 +15,7 @@ document.getElementById("inventory-button").addEventListener("click", toggleInve
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
-// Assuming you have access to the telegram_id after authentication
-function setUserIdFromTelegram() {
-  const telegramId = "your_telegram_id_here";  // Replace this with actual variable from authentication flow
-  
-  
+
 
 async function startMining() {
   const userId = localStorage.getItem("userId");
@@ -54,12 +50,12 @@ async function startMining() {
       clearInterval(interval);
       miningTimer.classList.add("hidden");
       isMining = false;
-      finishMining(userId);
+      finishMining();
     }
   }, 1000);
 }
 
-async function finishMining(userId) {
+async function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
 
