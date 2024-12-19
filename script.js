@@ -13,6 +13,11 @@ document.getElementById("inventory-button").addEventListener("click", toggleInve
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
+// Ensure user is authenticated on page load
+window.addEventListener("load", () => {
+  authenticateUser(); // Call authenticateUser when page loads
+});
+
 // Authenticate and store user ID
 async function authenticateUser() {
   try {
@@ -38,6 +43,12 @@ async function authenticateUser() {
 function startMining() {
   if (isMining || energy < 30) {
     console.log("Not enough energy to mine.");
+    return;
+  }
+
+  // Ensure userId is set before starting mining
+  if (!userId) {
+    console.error("User ID is not set!");
     return;
   }
 
@@ -158,4 +169,3 @@ function toggleLeaderboard() {
   leaderboard.classList.toggle("hidden");
   document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
 }
-
