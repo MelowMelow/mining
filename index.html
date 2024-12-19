@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Store user data in localStorage
             localStorage.setItem('userData', JSON.stringify(data.user[0]));
+			
 
             // Handle New or Existing User
             if (data.isNewUser) {
@@ -112,6 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Make sure authenticateUser is invoked as soon as the page is loaded or when needed
 	window.addEventListener('load', authenticateUser);
   </script>
-
+ <script>
+	document.addEventListener("DOMContentLoaded", () => {
+	  const userId = localStorage.getItem("userId");
+	  if (!userId) {
+		console.warn("User not logged in. Redirecting to login page...");
+		// Redirect or call login function if necessary
+	  } else {
+		console.log("Welcome back! User ID:", userId);
+	  }
+	});
+</script>
 </body>
 </html>
