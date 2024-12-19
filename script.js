@@ -94,7 +94,9 @@ function finishMining() {
   updateInventory();
 
   // Update resource on server
+  console.log("Calling updateResourcesOnServer with resource:", resourceType);
   updateResourcesOnServer(resourceType);
+
 
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
