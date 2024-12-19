@@ -13,7 +13,6 @@ document.getElementById("inventory-button").addEventListener("click", toggleInve
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
-// Authenticate and store user ID
 async function authenticateUser() {
   try {
     const response = await fetch('/api/authenticate', {
@@ -28,11 +27,37 @@ async function authenticateUser() {
       console.log("Authenticated user:", userId);
     } else {
       console.error("Authentication failed:", data.error);
+      showAuthenticationFailedMessage();
     }
   } catch (error) {
     console.error("Error during authentication:", error);
+    showAuthenticationFailedMessage();
   }
 }
+
+function showAuthenticationFailedMessage() {
+  const messageElement = document.createElement('div');
+  messageElement.innerText = "AUTHENTICATION FAILED";
+  messageElement.style.position = 'fixed';
+  messageElement.style.top = '50%';
+  messageElement.style.left = '50%';
+  messageElement.style.transform = 'translate(-50%, -50%)';
+  messageElement.style.fontSize = '50px';
+  messageElement.style.color = 'red';
+  messageElement.style.fontWeight = 'bold';
+  messageElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+  messageElement.style.padding = '20px';
+  messageElement.style.borderRadius = '10px';
+  messageElement.style.zIndex = '1000';
+
+  document.body.appendChild(messageElement);
+
+  // Automatically remove the message after 5 seconds
+  setTimeout(() => {
+    messageElement.remove();
+  }, 5000);
+}
+
 
 // Start mining process when the user clicks the mine button
 function startMining() {
