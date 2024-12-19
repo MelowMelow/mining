@@ -97,23 +97,24 @@ function finishMining() {
 
   // At the end of the mining process, update the resource on the server
   console.log("Calling updateResourcesOnServer with resource:", resourceType);
-  updateResourcesOnServer(resourceType);
+  updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
 }
 
-// Function to call backend and update the resource count on the server
 async function updateResourcesOnServer(resourceType) {
-  const userId = localStorage.getItem("userId"); // Retrieve the user's ID from localStorage
+  const userId = localStorage.getItem('userId'); // Retrieve the user's ID from localStorage
+  console.log('User ID retrieved from localStorage:', userId);
 
   if (!userId) {
-    console.error("User ID is not available.");
+    console.error('User ID is not available.');
     return;
   }
 
   try {
-    const response = await fetch("/api/updateResources", {
-      method: "POST",
+    console.log('Making the request to update resources on the server...');
+    const response = await fetch('/api/updateResources', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         id: userId,
@@ -122,16 +123,19 @@ async function updateResourcesOnServer(resourceType) {
     });
 
     const data = await response.json();
+    console.log('Response from updateResources API:', data); // Log the response from the API
 
     if (data.success) {
       console.log(`Resource updated successfully for ${resourceType}.`);
     } else {
-      console.error("Error updating resource:", data.error);
+      console.error('Error updating resource:', data.error);
     }
   } catch (error) {
-    console.error("Error during resource update:", error);
+    console.error('Error during resource update:', error);
   }
 }
+
+
 
 
 // Update the displayed stats for the user
