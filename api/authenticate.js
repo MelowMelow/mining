@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js"; 
+import { createClient } from "@supabase/supabase-js";
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 
@@ -8,7 +8,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 export default async function handler(req, res) {
     console.log("Received authentication request");
-    
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -56,6 +56,7 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Invalid signature' });
         }
 
+        // Check if the user exists in the database using Telegram ID
         const { data: existingUser, error: existError } = await supabase
             .from('users')
             .select('*')
@@ -63,13 +64,17 @@ export default async function handler(req, res) {
             .single();
 
         if (existingUser) {
+            console.log(`User with Telegram ID: ${id} found in the database.`);
             return res.status(200).json({
                 success: true,
                 user: existingUser,
                 isNewUser: false
             });
+        } else {
+            console.log(`No user found with Telegram ID: ${id}. Registering new user.`);
         }
 
+        // Insert a new user record if not found
         const { data: newUser, error: insertError } = await supabase
             .from('users')
             .insert([{
@@ -87,6 +92,7 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: insertError.message });
         }
 
+        // Insert resources for the new user
         const { data: resourceSetup, error: resourceError } = await supabase
             .from('resources')
             .insert([{
@@ -100,6 +106,9 @@ export default async function handler(req, res) {
             console.error('Resource setup error:', resourceError);
             return res.status(500).json({ error: resourceError.message });
         }
+
+        // Log new user registration
+        console.log(`New user with Telegram ID: ${id} successfully registered.`);
 
         return res.status(200).json({
             success: true,
