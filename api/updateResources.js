@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { resourceType, id } = req.body; // `id` from the users table
+  const { resourceType, id } = req.body;
 
   if (!id) {
     return res.status(400).json({ error: "User ID is required" });
@@ -23,21 +23,18 @@ export default async function handler(req, res) {
   console.log("Received request to update resource:", { id, resourceType });
 
   try {
-    // Attempt to increment the resource
-    const { data, error } = await supabase
-      .from("resources")
-      .update({
-        [resourceType]: supabase.rpc("increment_resource", { user_id: id, resource: resourceType }),
-      })
-      .eq("user_id", id);
-
-    console.log("Update operation result:", { data, error });
+    // Call the increment_resource function directly via RPC
+    const { data, error } = await supabase.rpc("increment_resource", {
+      user_id: id,  // Pass user_id (integer)
+      resource: resourceType,  // Pass resource type (string)
+    });
 
     if (error) {
       console.error("Error updating resources:", error);
       return res.status(500).json({ error: error.message });
     }
 
+    console.log("Resource incremented successfully:", data);
     return res.status(200).json({ success: true, data });
   } catch (error) {
     console.error("Error handling resource update:", error);
