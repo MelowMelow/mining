@@ -18,7 +18,6 @@ window.addEventListener("load", () => {
   authenticateUser(); // Call authenticateUser when page loads
 });
 
-// Authenticate and store user ID
 async function authenticateUser() {
   try {
     const response = await fetch('/api/authenticate', {
@@ -29,8 +28,8 @@ async function authenticateUser() {
 
     const data = await response.json();
     if (data.success) {
-      userId = data.user.id;
-      console.log("Authenticated user:", userId);
+      userId = data.user.id; // Ensure the user ID is being correctly set
+      console.log("Authenticated user:", userId); // Log to ensure it's set
     } else {
       console.error("Authentication failed:", data.error);
     }
@@ -38,6 +37,7 @@ async function authenticateUser() {
     console.error("Error during authentication:", error);
   }
 }
+
 
 // Start mining process when the user clicks the mine button
 function startMining() {
