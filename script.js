@@ -47,30 +47,6 @@ function startMining() {
   }, 1000);
 }
 
-// Handle the update of user resources on the server
-async function updateResourcesOnServer(resource) {
-  if (!userId) {
-    console.error('User ID is not set!');
-    return;
-  }
-
-  try {
-    const response = await fetch('/api/updateResources', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resourceType: resource, id: userId }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to update resources on the server');
-    }
-
-    const data = await response.json();
-    console.log("Server updated successfully:", data);
-  } catch (error) {
-    console.error("Error updating resources on server:", error);
-  }
-}
 
 // Finish mining process: add the resource and update UI and backend
 function finishMining() {
