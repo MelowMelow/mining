@@ -77,6 +77,12 @@ function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
 
+  // Validate resourceType before proceeding
+  if (!['gold', 'silver', 'copper'].includes(resourceType)) {
+    console.error("Invalid resource type:", resourceType);
+    return;
+  }
+
   // Increment resource count
   resources[resourceType].count++;
 
