@@ -83,7 +83,7 @@ async function updateResourcesOnServer(resourceType) {
 
   if (!userId) {
     console.error('User ID is not available.');
-	alert("strange...User ID is not available"); /
+	alert('strange ID isnt avalible'); 
     return;
   }
 
