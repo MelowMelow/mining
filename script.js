@@ -64,7 +64,7 @@ function startMining() {
 async function updateResourcesOnServer(resource) {
   if (!userId) {
     console.error('User ID is not set!');
-	userId = 8;  // Set userId to 8 if it's not set
+	
     
   }
 
