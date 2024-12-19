@@ -26,14 +26,6 @@ function startMining() {
   isMining = true;
   energy -= 30;
   updateEnergy();
-  
-  const storedUserId = localStorage.getItem('userId');
-if (!storedUserId) {
-  console.error('User ID not found in localStorage. Cannot mine resources.');
-  return;
-} else {
-  console.log('User ID available:', storedUserId);
-}
 
 
   const miningTimer = document.getElementById("mining-timer");
@@ -91,6 +83,7 @@ async function updateResourcesOnServer(resourceType) {
 
   if (!userId) {
     console.error('User ID is not available.');
+	alert("strange...User ID is not available"); /
     return;
   }
 
