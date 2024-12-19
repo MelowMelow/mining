@@ -108,6 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+  <script>
+	// Make sure authenticateUser is invoked as soon as the page is loaded or when needed
+	window.addEventListener('load', authenticateUser);
+  </script>
 
 </body>
 </html>
