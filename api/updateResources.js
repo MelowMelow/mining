@@ -23,10 +23,12 @@ export default async function handler(req, res) {
   console.log("Received request to update resource:", { id, resourceType });
 
   try {
-    // Attempt to update the database using `user_id` matching `id`
+    // Update resource value, safely incrementing the existing value
     const { data, error } = await supabase
       .from('resources')
-      .update({ [resourceType]: supabase.raw(`${resourceType} + 1`) })
+      .update({
+        [resourceType]: supabase.raw(`?? + 1`, [resourceType]) // Ensure that you're safely incrementing the correct column
+      })
       .eq('user_id', id);
 
     console.log("Update operation result:", { data, error });
