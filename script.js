@@ -85,43 +85,55 @@ function finishMining() {
   updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
 }
 
-async function updateResourcesOnServer(resourceType) {
-  const userId = localStorage.getItem('userId'); // Retrieve the user's ID from localStorage
-  console.log('User ID retrieved from localStorage:', userId);
+async function finishMining() {
+  const popup = document.getElementById("popup-resource");
+  const resourceType = generateResource();
 
-  if (!userId) {
-    console.error('User ID is not available.');
+  // Validate resourceType before proceeding
+  if (!["gold", "silver", "copper"].includes(resourceType)) {
+    console.error("Invalid resource type:", resourceType);
     return;
   }
 
+  // Increment resource count in frontend
+  resources[resourceType].count++;
+
+  // Update stats and inventory (reflecting changes in UI)
+  updateStats();
+  updateInventory();
+
+  // Display mining popup
+  popup.innerText = `+1 ${resourceType.toUpperCase()}`;
+  popup.className = `active ${resources[resourceType].rarity}`;
+  setTimeout(() => (popup.className = ""), 1000);
+
+  console.log("Mining completed. Updating server...");
+
+  // Send resource update to server
   try {
-    console.log('Making the request to update resources on the server...');
-    const response = await fetch('/api/updateResources', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: userId,
-        resourceType: resourceType, // 'gold', 'silver', or 'copper'
-      }),
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      throw new Error("User ID not found in localStorage.");
+    }
+
+    const response = await fetch("/api/updateResources", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resourceType, id: userId }), // ResourceType and User ID
     });
 
-    const data = await response.json();
-    console.log('Response from updateResources API:', data); // Log the response from the API
-
-    if (data.success) {
-      console.log(`Resource updated successfully for ${resourceType}.`);
-    } else {
-      console.error('Error updating resource:', data.error);
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("Error from server:", error);
+      return;
     }
+
+    const data = await response.json();
+    console.log("Server response:", data);
   } catch (error) {
-    console.error('Error during resource update:', error);
+    console.error("Failed to update resources on server:", error);
   }
 }
-
-
-
 
 // Update the displayed stats for the user
 function updateStats() {
