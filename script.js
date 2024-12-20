@@ -102,7 +102,7 @@ function finishMining() {
 async function updateResourcesOnServer(resourceType) {
     if (!userId) {
         console.error('No user ID found. Cannot update resources.');
-		alert.('no user id found to update DB');
+		alert('no user id found to update DB');
         return;
     }
 
