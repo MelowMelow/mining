@@ -70,6 +70,7 @@ const handler = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 user: existingUser,
+				telegram_id: id,
                 isNewUser: false
             });
 		if (typeof window !== "undefined") {
@@ -117,6 +118,7 @@ const handler = async (req, res) => {
         return res.status(200).json({
             success: true,
             user: newUser[0],
+			telegram_id: id,
             isNewUser: true
         });
     } catch (error) {

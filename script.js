@@ -76,16 +76,31 @@ function finishMining() {
   console.log("Calling updateResourcesOnServer with resource:", resourceType);
   updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
 }
+async function authenticateUser(initData) {
+    try {
+        const response = await fetch('/api/authenticate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            localStorage.setItem('userId', data.telegram_id); // Store Telegram ID in localStorage
+            console.log(`User ID stored in localStorage: ${data.telegram_id}`);
+        } else {
+            console.error('Authentication failed:', data.error);
+        }
+    } catch (error) {
+        console.error('Error during authentication:', error);
+    }
+}
+
+
 
 async function updateResourcesOnServer(resourceType) {
-  const userId = localStorage.getItem('userId'); // Retrieve the user's ID from localStorage
-  console.log('User ID retrieved from localStorage:', userId);
-
-  if (!userId) {
-    console.error('User ID is not available.');
-	alert('strange ID isnt avalible'); 
-    return;
-  }
+// Example usage
+ authenticateUser(initData);
 
   try {
     console.log('Making the request to update resources on the server...');
