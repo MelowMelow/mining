@@ -44,7 +44,7 @@ function startMining() {
     // Check if user is authenticated
     if (!userId) {
         console.error("User not authenticated");
-		alert.('User Could not Found in DB');
+		alert('User Could not Found in DB');
         return;
     }
 
