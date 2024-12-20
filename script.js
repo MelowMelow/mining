@@ -18,7 +18,7 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 
 // Start mining process when the user clicks the mine button
 function startMining() {
-  authenticateUser(initData);
+  
      
   if (isMining || energy < 30) {
     console.log("Not enough energy to mine.");
