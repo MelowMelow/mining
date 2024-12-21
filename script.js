@@ -1,4 +1,3 @@
-import { handleAuthentication } from './login.js';
 
 let energy = 1000;
 let isMining = false;
@@ -21,7 +20,9 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 // Start mining process when the user clicks the mine button
 async function startMining() {
   console.log("Mining button clicked!");
-  await handleAuthentication();
+  const telegramId = localStorage.getItem('telegramId');
+  
+  
      
   if (isMining || energy < 30) {
     console.log("Not enough energy to mine.");
