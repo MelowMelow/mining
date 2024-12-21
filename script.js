@@ -24,8 +24,7 @@ function startMining() {
   
  
 
-// Call handleAuthentication immediately
-  handleAuthentication();
+  await handleAuthentication();
      
   if (isMining || energy < 30) {
     console.log("Not enough energy to mine.");
