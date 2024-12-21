@@ -1,52 +1,42 @@
-// /api/bot.js
 const { Telegraf } = require("telegraf");
 const express = require("express");
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON data
 
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN); // Telegram Bot token
+// Create a new Telegraf bot instance with the token stored in environment variables
+const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 // /start command handler (When the user clicks 'Start')
 bot.start(async (ctx) => {
-    const telegramId = ctx.from.id; // Capture the user's telegram ID
-    // You can store the ID for further interactions (save to your DB here)
+    const telegramId = ctx.from.id; // Capture the user's Telegram ID
+    // You can store the ID for further interactions (store in your DB here if needed)
 
     // Reply to the user after they start the bot
     await ctx.reply("Welcome to the game! You can start interacting and mining resources.");
 });
 
-// Webhook route - Telegram sends updates to this endpoint
+// Webhook route - Telegram will send updates to this endpoint
 app.post(`/api/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, (req, res) => {
-    bot.handleUpdate(req.body, res); // Process the update from Telegram
+    bot.handleUpdate(req.body, res); // Process incoming updates from Telegram
 });
 
-// This is required for Vercel to handle serverless requests
-module.exports = app;
-
-
-const { Telegraf } = require("telegraf");
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);  // Use your bot token from the environment variable
-
-// Define the /start command for when the user presses 'Start'
-bot.start(async (ctx) => {
-    const telegramId = ctx.from.id;  // Capture the user's telegram ID
-    // Respond to the user
-    await ctx.reply("Welcome to the game! You can start interacting and mining resources.");
-});
-
-// Set the Telegram webhook URL for your Vercel app
+// Set the webhook URL for Telegram (Vercel)
 const setWebhook = async () => {
     const webhookUrl = `https://mining-pink.vercel.app/api/webhook/${process.env.TELEGRAM_BOT_TOKEN}`;
-    await bot.telegram.setWebhook(webhookUrl); // Set the webhook for Telegram to send updates to Vercel
-    console.log("Webhook set to:", webhookUrl);  // Optionally, log it to the console
+    try {
+        await bot.telegram.setWebhook(webhookUrl); // Set the Telegram webhook
+        console.log("Webhook set to:", webhookUrl); // Log success
+    } catch (err) {
+        console.error("Error setting webhook:", err); // Log errors if any
+    }
 };
 
-// Call this function to set the webhook
-setWebhook();
+// Call to set webhook (called when function is invoked)
+app.get("/setup-webhook", async (req, res) => {
+    await setWebhook(); // Call the setWebhook function
+    res.status(200).send("Webhook has been set.");
+});
 
-// Launch the bot (will run on Vercel)
-bot.launch();
-
-
-
+// Export the Express app required for Vercel to handle the serverless request
+module.exports = app;
