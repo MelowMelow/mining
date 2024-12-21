@@ -89,9 +89,10 @@ function finishMining() {
 async function updateResourcesOnServer(resourceType) {
     const telegramId = localStorage.getItem("telegramId");
 
-    if (!telegramId) 
+    if (!telegramId) {
 		alert("not saved");
-		return; // Terminate if authentication fails
+		return;
+	}		// Terminate if authentication fails
 	
 
     try {
