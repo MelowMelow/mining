@@ -1,4 +1,4 @@
-import { handleAuthentication } from './login.js';
+
 
 let energy = 1000;
 let isMining = false;
