@@ -2,44 +2,49 @@ export async function handleAuthentication() {
   try {
     console.log("Authentication started...");
 
-    // Optional data to send in the request body (e.g., user credentials)
-    const requestData = {
-     telegram_id: 'id', // Example field, replace with actual data
-    };
+    // Check if localStorage already has the telegramId, otherwise proceed
+    const telegramId = localStorage.getItem('telegramId');
+    if (telegramId) {
+      console.log(`Found saved Telegram ID: ${telegramId}`);
+      return; // Skip if already authenticated
+    }
 
-    // Send the authentication request
+    // Optional: Add data if required (e.g., Telegram init data)
+    const initData = {};  // You can pass any required user data for authentication
+
+    console.log('Sending request with initData:', initData); 
+
+    // Send POST request to authenticate
     const response = await fetch('/api/authenticate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestData),  // send any necessary data here
+      body: JSON.stringify({ initData }),  // Send the required data
     });
 
     console.log("Received response from server:", response);
 
-    // Check if response is successful
     if (!response.ok) {
-      console.error(`Error: Response status ${response.status} - Response not OK`, response);
-      return; // Exit if the response status is not okay
+      const errorBody = await response.text(); // Retrieve error response
+      console.error(`Error ${response.status}:`, errorBody);
+      return; // Return in case of error
     }
 
     const data = await response.json();
-    console.log("Response data:", data);
+    console.log("Authentication response data:", data);
 
-    // Handle success response
     if (data.success) {
-      const telegramId = data.telegram_id;  // Extract telegram_id
+      const telegramId = data.telegram_id; // Extract telegram ID from response
       console.log("Authentication successful, Telegram ID:", telegramId);
 
-      // Save the telegramId in localStorage
+      // Save the Telegram ID in localStorage for later use
       localStorage.setItem('telegramId', telegramId);
       console.log('Telegram ID saved to localStorage:', telegramId);
 
-      // Optionally you can perform an action after saving the ID
-      // e.g., update the UI or notify the user
+      // Perform any further action based on success, such as displaying UI elements
     } else {
-      console.error("Authentication failed:", data);
+      console.error("Authentication failed:", data.error);
     }
   } catch (error) {
     console.error("Error during authentication:", error);
