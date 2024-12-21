@@ -1,22 +1,40 @@
-// Example function to process the successful authentication response
 async function handleAuthentication() {
   try {
-    const response = await fetch('/api/authenticate'); // Replace with your endpoint
+    console.log("Authentication started...");
+
+    const response = await fetch('/api/authenticate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ /* optional data to send */ }),
+    });
+
+    console.log("Received response from server:", response);
+
+    // Check if response is successful
+    if (!response.ok) {
+      console.error('Response not OK:', response);
+      return;
+    }
+
     const data = await response.json();
+    console.log("Response data:", data);
 
     if (data.success) {
       const telegramId = data.telegram_id;
-      console.log('Telegram ID:', telegramId);
+      console.log("Authentication successful, Telegram ID:", telegramId);
 
-      // Save it in localStorage for later use
+      // Save the telegramId in localStorage
       localStorage.setItem('telegramId', telegramId);
+      console.log('Telegram ID saved to localStorage:', telegramId);
 
-      // Optionally update the UI or perform further actions
+      // Additional actions if needed after successful authentication
       console.log('User authenticated successfully!');
     } else {
-      console.error('Authentication failed:', data);
+      console.error("Authentication failed:", data);
     }
   } catch (error) {
-    console.error('Error during authentication:', error);
+    console.error("Error during authentication:", error);
   }
 }
