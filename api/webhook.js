@@ -1,21 +1,24 @@
-import { Telegraf } from "telegraf"; // Import Telegraf
+import { Telegraf } from "telegraf";
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+
+// Set up command handlers
+bot.start((ctx) => {
+    console.log("User started bot:", ctx.from.id);
+    return ctx.reply("Welcome! You can now start interacting and mining resources.");
+});
 
 export default async (req, res) => {
     if (req.method === "POST") {
-        const webhookUrl = `https://mining-pink.vercel.app/api/webhook`;
-
         try {
-            // Set Telegram Webhook
-            await bot.telegram.setWebhook(webhookUrl);
-            console.log("Webhook set to:", webhookUrl);
-            res.status(200).send("Webhook has been set.");
-        } catch (err) {
-            console.error("Error setting webhook:", err);
-            res.status(500).send("Error setting webhook.");
+            // Handle the webhook update
+            const update = req.body;
+            await bot.handleUpdate(update);
+            res.status(200).json({ ok: true });
+        } catch (error) {
+            console.error('Error handling webhook:', error);
+            res.status(500).json({ ok: false, error: error.message });
         }
     } else {
-        // Return Method Not Allowed for anything except GET
         res.status(405).send("Method Not Allowed");
     }
 };
