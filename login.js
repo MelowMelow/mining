@@ -4,7 +4,7 @@ export async function handleAuthentication() {
 
     // Optional data to send in the request body (e.g., user credentials)
     const requestData = {
-     telegram_id: 'id' // Example field, replace with actual data
+     telegram_id: 'id', // Example field, replace with actual data
     };
 
     // Send the authentication request
