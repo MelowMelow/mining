@@ -1,3 +1,5 @@
+import { handleAuthentication } from './login.js';
+
 let energy = 1000;
 let isMining = false;
 let resources = {
@@ -19,6 +21,11 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 // Start mining process when the user clicks the mine button
 function startMining() {
   
+  
+ 
+
+// Call handleAuthentication immediately
+  handleAuthentication();
      
   if (isMining || energy < 30) {
     console.log("Not enough energy to mine.");
@@ -86,7 +93,10 @@ function finishMining() {
 async function updateResourcesOnServer(resourceType) {
     const telegramId = localStorage.getItem("telegramId");
 
-    if (!telegramId) return; // Terminate if authentication fails
+    if (!telegramId) 
+		alert("not saved");
+		return; // Terminate if authentication fails
+	
 
     try {
         const response = await fetch('/api/updateresources', {
