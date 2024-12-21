@@ -1,4 +1,4 @@
-async function handleAuthentication() {
+export async function handleAuthentication() {
   try {
     console.log("Authentication started...");
 
