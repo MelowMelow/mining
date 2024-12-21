@@ -21,7 +21,7 @@ app.post(`/api/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, (req, res) => {
     bot.handleUpdate(req.body, res); // Process incoming updates from Telegram
 });
 
-// Set the webhook URL for Telegram (required for your Vercel app)
+// Set the webhook URL for Telegram (Vercel)
 const setWebhook = async () => {
     const webhookUrl = `https://mining-pink.vercel.app/api/webhook/${process.env.TELEGRAM_BOT_TOKEN}`;
     try {
@@ -32,8 +32,11 @@ const setWebhook = async () => {
     }
 };
 
-// Call to set webhook
-setWebhook();
+// Call to set webhook (called when function is invoked)
+app.get("/setup-webhook", async (req, res) => {
+    await setWebhook(); // Call the setWebhook function
+    res.status(200).send("Webhook has been set.");
+});
 
 // Export the Express app required for Vercel to handle the serverless request
 module.exports = app;
