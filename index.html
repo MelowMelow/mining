@@ -51,7 +51,8 @@
   </script>
 </div>
 
-<script type="module">
+<script  type="module" src="script.js"></script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   if (window.Telegram && window.Telegram.WebApp) {
     const tgWebApp = window.Telegram.WebApp;
@@ -108,7 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-<script type="module src="login.js";
+
+<script type="module">
+  import { handleAuthentication } from './login.js';
   
   // Initialize Telegram WebApp
   if (window.Telegram && window.Telegram.WebApp) {
@@ -121,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Telegram WebApp is not available');
   }
 </script>
-
 
 
 </body>
