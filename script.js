@@ -78,57 +78,42 @@ function finishMining() {
   console.log("Calling updateResourcesOnServer with resource:", resourceType);
   updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
 }
-async function authenticateUser(initData) {
+async function updateResourcesOnServer(resourceType) {
+    // Get the telegramId from localStorage (should have been saved during /start in the bot)
+    const telegramId = localStorage.getItem('userId');  // Retrieve from localStorage (after initial bot authentication)
+
+    if (!telegramId) {
+        console.error('User not authenticated. Telegram ID not found.');
+        return;
+    }
+
     try {
-        const response = await fetch('/api/authenticate', {
+        console.log('Making the request to update resources on the server...');
+        const response = await fetch('/api/updateresources', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                telegramId,              // Send the telegramId from the bot as a user identifier
+                resourceType,            // 'gold', 'silver', or 'copper'
+                amount: 1,               // The amount of resources to increment (this can vary)
+            }),
         });
 
         const data = await response.json();
+        console.log('Response from updateResources API:', data); // Log the response from the API
+
         if (data.success) {
-            localStorage.setItem('userId', data.telegram_id); // Store Telegram ID in localStorage
-            console.log(`User ID stored in localStorage: ${data.telegram_id}`);
+            console.log(`Resource updated successfully for ${resourceType}.`);
         } else {
-            console.error('Authentication failed:', data.error);
+            console.error('Error updating resource:', data.error);
         }
     } catch (error) {
-        console.error('Error during authentication:', error);
+        console.error('Error during resource update:', error);
     }
 }
 
-
-
-async function updateResourcesOnServer(resourceType) {
-// Example usage
- authenticateUser(initData);
-
-  try {
-    console.log('Making the request to update resources on the server...');
-    const response = await fetch('/api/updateResources', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: userId,
-        resourceType: resourceType, // 'gold', 'silver', or 'copper'
-      }),
-    });
-
-    const data = await response.json();
-    console.log('Response from updateResources API:', data); // Log the response from the API
-
-    if (data.success) {
-      console.log(`Resource updated successfully for ${resourceType}.`);
-    } else {
-      console.error('Error updating resource:', data.error);
-    }
-  } catch (error) {
-    console.error('Error during resource update:', error);
-  }
-}
 
 
 
