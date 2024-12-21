@@ -79,37 +79,43 @@ function finishMining() {
   updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
 }
 // Check and ensure telegramId is available
-async function getOrAuthenticateTelegramId() {
-    let telegramId = localStorage.getItem('userId');
+async function authenticateUser() {
+    const telegramInitData = new URLSearchParams(window.location.search).get("initData");
 
-    if (!telegramId) {
-        try {
-            const response = await fetch('/api/authenticate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: YOUR_TELEGRAM_INIT_DATA }), // Replace with your initData
-            });
-
-            const result = await response.json();
-            if (result.success && result.telegram_id) {
-                telegramId = result.telegram_id;
-                localStorage.setItem('userId', telegramId); // Save for later use
-            } else {
-                throw new Error(result.error || 'Unable to authenticate');
-            }
-        } catch (err) {
-            console.error('Authentication failed:', err.message);
-            alert('Authentication is required. Please authenticate again.');
-            window.location.href = `https://t.me/${process.env.TELEGRAM_BOT_NAME}`; // Direct to bot /start
-        }
+    if (!telegramInitData) {
+        alert("Authentication required. Please open this app via Telegram.");
+        window.location.href = `https://t.me/${process.env.TELEGRAM_BOT_NAME}`;
+        return null;
     }
 
-    return telegramId;
+    try {
+        const response = await fetch("/api/authenticate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: telegramInitData }), // Send initData
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.telegram_id) {
+            // Store telegram_id in localStorage
+            localStorage.setItem("userId", result.telegram_id);
+            console.log("Telegram ID saved to localStorage:", result.telegram_id);
+            return result.telegram_id;
+        } else {
+            throw new Error(result.error || "Authentication failed.");
+        }
+    } catch (error) {
+        console.error("Authentication error:", error.message);
+        alert("Unable to authenticate. Please try again.");
+        return null;
+    }
 }
+
 
 // Adjust mining logic to fetch `telegramId` when necessary
 async function updateResourcesOnServer(resourceType) {
-    const telegramId = await getOrAuthenticateTelegramId();
+    const telegramId = await authenticateUser();
 
     if (!telegramId) return; // Terminate if authentication fails
 
