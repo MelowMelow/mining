@@ -78,41 +78,63 @@ function finishMining() {
   console.log("Calling updateResourcesOnServer with resource:", resourceType);
   updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
 }
-async function updateResourcesOnServer(resourceType) {
-    // Get the telegramId from localStorage (should have been saved during /start in the bot)
-    const telegramId = localStorage.getItem('userId');  // Retrieve from localStorage (after initial bot authentication)
+// Check and ensure telegramId is available
+async function getOrAuthenticateTelegramId() {
+    let telegramId = localStorage.getItem('userId');
 
     if (!telegramId) {
-        console.error('User not authenticated. Telegram ID not found.');
-        return;
+        try {
+            const response = await fetch('/api/authenticate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: YOUR_TELEGRAM_INIT_DATA }), // Replace with your initData
+            });
+
+            const result = await response.json();
+            if (result.success && result.telegram_id) {
+                telegramId = result.telegram_id;
+                localStorage.setItem('userId', telegramId); // Save for later use
+            } else {
+                throw new Error(result.error || 'Unable to authenticate');
+            }
+        } catch (err) {
+            console.error('Authentication failed:', err.message);
+            alert('Authentication is required. Please authenticate again.');
+            window.location.href = `https://t.me/${process.env.TELEGRAM_BOT_NAME}`; // Direct to bot /start
+        }
     }
 
+    return telegramId;
+}
+
+// Adjust mining logic to fetch `telegramId` when necessary
+async function updateResourcesOnServer(resourceType) {
+    const telegramId = await getOrAuthenticateTelegramId();
+
+    if (!telegramId) return; // Terminate if authentication fails
+
     try {
-        console.log('Making the request to update resources on the server...');
         const response = await fetch('/api/updateresources', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                telegramId,              // Send the telegramId from the bot as a user identifier
-                resourceType,            // 'gold', 'silver', or 'copper'
-                amount: 1,               // The amount of resources to increment (this can vary)
+                telegramId, // Use the token reliably stored after authentication
+                resourceType,
+                amount: 1,
             }),
         });
 
         const data = await response.json();
-        console.log('Response from updateResources API:', data); // Log the response from the API
-
         if (data.success) {
-            console.log(`Resource updated successfully for ${resourceType}.`);
+            console.log(`Resource ${resourceType} updated successfully.`);
         } else {
-            console.error('Error updating resource:', data.error);
+            console.error(`Error updating resource: ${data.error}`);
         }
     } catch (error) {
-        console.error('Error during resource update:', error);
+        console.error('Network or server error while updating resource:', error);
     }
 }
+
 
 
 
