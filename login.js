@@ -1,52 +1,63 @@
+// login.js
 export async function handleAuthentication() {
   try {
-    console.log("Authentication started...");
-
-    // Check if localStorage already has the telegramId, otherwise proceed
-    const telegramId = localStorage.getItem('telegramId');
-    if (telegramId) {
-      console.log(`Found saved Telegram ID: ${telegramId}`);
-      return; // Skip if already authenticated
+    // Check for existing authentication
+    const existingTelegramId = localStorage.getItem('telegramId');
+    if (existingTelegramId) {
+      console.log('Already authenticated with ID:', existingTelegramId);
+      return true;
     }
 
-    // Optional: Add data if required (e.g., Telegram init data)
-    const initData = {};  // You can pass any required user data for authentication
+    // Check for Telegram WebApp
+    if (!window.Telegram?.WebApp) {
+      console.error('Telegram WebApp is not available');
+      return false;
+    }
 
-    console.log('Sending request with initData:', initData); 
+    const tgWebApp = window.Telegram.WebApp;
+    const initData = tgWebApp.initData;
 
-    // Send POST request to authenticate
+    console.log('Init data available:', !!initData);
+    
+    if (!initData) {
+      console.error('No init data available');
+      return false;
+    }
+
+    console.log('Sending authentication request...');
+    
     const response = await fetch('/api/authenticate', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ initData }),  // Send the required data
+      body: JSON.stringify({ initData })
     });
 
-    console.log("Received response from server:", response);
+    console.log('Response status:', response.status);
 
-    if (!response.ok) {
-      const errorBody = await response.text(); // Retrieve error response
-      console.error(`Error ${response.status}:`, errorBody);
-      return; // Return in case of error
+    const text = await response.text();
+    console.log('Raw response:', text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.error('Failed to parse response as JSON:', e);
+      return false;
     }
 
-    const data = await response.json();
-    console.log("Authentication response data:", data);
-
-    if (data.success) {
-      const telegramId = data.telegram_id; // Extract telegram ID from response
-      console.log("Authentication successful, Telegram ID:", telegramId);
-
-      // Save the Telegram ID in localStorage for later use
-      localStorage.setItem('telegramId', telegramId);
-      console.log('Telegram ID saved to localStorage:', telegramId);
-
-      // Perform any further action based on success, such as displaying UI elements
+    if (data.success && data.telegram_id) {
+      localStorage.setItem('telegramId', data.telegram_id);
+      console.log('Successfully authenticated with ID:', data.telegram_id);
+      return true;
     } else {
-      console.error("Authentication failed:", data.error);
+      console.error('Authentication failed:', data.error || 'Unknown error');
+      return false;
     }
+
   } catch (error) {
-    console.error("Error during authentication:", error);
+    console.error('Authentication error:', error);
+    return false;
   }
 }
