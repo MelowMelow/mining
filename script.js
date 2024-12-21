@@ -23,6 +23,7 @@ async function startMining() {
     
     // Check for authentication
     const telegramId = localStorage.getItem('telegramId');
+	console.log("got id");
     if (!telegramId) {
         console.log("User not authenticated");
         
