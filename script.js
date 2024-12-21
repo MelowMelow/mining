@@ -19,7 +19,7 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 
 
 // Start mining process when the user clicks the mine button
-function startMining() {
+async function startMining() {
   
   
  
