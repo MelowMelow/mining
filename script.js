@@ -19,9 +19,45 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 
 // Start mining process when the user clicks the mine button
 async function startMining() {
-  console.log("Mining button clicked!");
-  const telegramId = localStorage.getItem('telegramId');
-  
+    console.log("Mining button clicked!");
+    
+    // Check for authentication
+    const telegramId = localStorage.getItem('telegramId');
+    if (!telegramId) {
+        console.log("User not authenticated");
+        
+        // Get the existing initData from Telegram WebApp
+        if (window.Telegram?.WebApp) {
+            const tgWebApp = window.Telegram.WebApp;
+            const initData = tgWebApp.initData;
+
+            try {
+                const response = await fetch('/api/authenticate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('telegramId', data.telegram_id);
+                    localStorage.setItem('userData', JSON.stringify(data.user[0]));
+                    console.log('Authentication successful');
+                } else {
+                    console.error('Authentication failed:', data.error);
+                    return;
+                }
+            } catch (error) {
+                console.error('Authentication error:', error);
+                return;
+            }
+        } else {
+            console.error('Telegram WebApp not available');
+            return;
+        }
+    }
+
+
   
      
   if (isMining || energy < 30) {
