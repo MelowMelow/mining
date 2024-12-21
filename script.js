@@ -88,10 +88,10 @@ async function authenticateUser() {
     }
 
     try {
-        const response = await fetch("/api/authenticate", {
+        const response = await fetch("/api/webhook", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData: telegramInitData }), // Send initData
+            body: JSON.stringify({ initData: id }), // Send initData
         });
 
         const result = await response.json();
