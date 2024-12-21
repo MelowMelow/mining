@@ -1,7 +1,7 @@
 // Example function to process the successful authentication response
 async function handleAuthentication() {
   try {
-    const response = await fetch('/api/authenticate-user'); // Replace with your endpoint
+    const response = await fetch('/api/authenticate'); // Replace with your endpoint
     const data = await response.json();
 
     if (data.success) {
