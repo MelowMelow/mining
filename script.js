@@ -78,43 +78,13 @@ function finishMining() {
   console.log("Calling updateResourcesOnServer with resource:", resourceType);
   updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
 }
-// Check and ensure telegramId is available
-async function authenticateUser() {
-    const telegramInitData = new URLSearchParams(window.location.search).get("initData");
+            
 
-    if (!telegramInitData) {
-        alert("Authentication required. Please open this app via Telegram.");
-        return null;
-    }
-
-    try {
-        const response = await fetch("/api/webhook", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData: id }), // Send initData
-        });
-
-        const result = await response.json();
-
-        if (result.success && result.telegram_id) {
-            // Store telegram_id in localStorage
-            localStorage.setItem("userId", result.telegram_id);
-            console.log("Telegram ID saved to localStorage:", result.telegram_id);
-            return result.telegram_id;
-        } else {
-            throw new Error(result.error || "Authentication failed.");
-        }
-    } catch (error) {
-        console.error("Authentication error:", error.message);
-        alert("Unable to authenticate. Please try again.");
-        return null;
-    }
-}
 
 
 // Adjust mining logic to fetch `telegramId` when necessary
 async function updateResourcesOnServer(resourceType) {
-    const telegramId = await authenticateUser();
+    const telegramId = localStorage.getItem("telegramId");
 
     if (!telegramId) return; // Terminate if authentication fails
 
