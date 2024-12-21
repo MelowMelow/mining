@@ -84,7 +84,7 @@ async function authenticateUser() {
 
     if (!telegramInitData) {
         alert("Authentication required. Please open this app via Telegram.");
-        window.location.href = `https://t.me/${process.env.TELEGRAM_BOT_NAME}`;
+        window.location.href = `https://t.me/${BOT_USERNAME}`; // Redirect if initData is missing
         return null;
     }
 
@@ -92,14 +92,14 @@ async function authenticateUser() {
         const response = await fetch("/api/authenticate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData: telegramInitData }), // Send initData
+            body: JSON.stringify({ initData: telegramInitData }), // Pass initData
         });
 
         const result = await response.json();
 
         if (result.success && result.telegram_id) {
             // Store telegram_id in localStorage
-            localStorage.setItem("userId", result.telegram_id);
+            localStorage.setItem("user_id", result.telegram_id);
             console.log("Telegram ID saved to localStorage:", result.telegram_id);
             return result.telegram_id;
         } else {
