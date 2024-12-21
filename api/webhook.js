@@ -2,7 +2,7 @@ import { Telegraf } from "telegraf"; // Import Telegraf
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 export default async (req, res) => {
-    if (req.method === "GET") {
+    if (req.method === "POST") {
         const webhookUrl = `https://mining-pink.vercel.app/api/webhook`;
 
         try {
