@@ -157,7 +157,7 @@ async function updateResourcesOnServer(resourceType) {
     }
 
     try {
-        const response = await fetch('/api/updateresources', {
+        const response = await fetch('https://mining-pink.vercel.app/api/updateresources', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
