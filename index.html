@@ -51,7 +51,7 @@
   </script>
 </div>
 
-<script  type="module" src="script.js"></script>
+<script type="module" src="script.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   if (window.Telegram && window.Telegram.WebApp) {
@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Method to authenticate
     function authenticateWithBackend() {
       const initData = tgWebApp.initData;
-
       if (!initData) {
         console.error('No init data available');
         return;
@@ -74,21 +73,20 @@ document.addEventListener('DOMContentLoaded', () => {
       })
         .then(response => response.json())
         .then(data => {
-          if (data.success) {
+          if (data.success && data.telegram_id) {  // Check if telegram_id exists
             console.log('Authentication successful', data);
-
+            
             // Hide the Telegram Login Widget
             const widgetContainer = document.getElementById('telegram-widget-container');
             if (widgetContainer) {
               widgetContainer.style.display = 'none';
             }
 
-            // Store user data in localStorage
+            // Store user data and telegram ID in localStorage
             localStorage.setItem('userData', JSON.stringify(data.user[0]));
-			localStorage.setItem('telegramId');
-			console.log("got id");
-			
-
+            localStorage.setItem('telegramId', data.telegram_id.toString());
+            console.log("Telegram ID stored:", data.telegram_id);
+            
             // Handle New or Existing User
             if (data.isNewUser) {
               console.log('New user registered');
@@ -96,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
               console.log('Existing user logged in');
             }
           } else {
-            console.error('Authentication failed:', data.error);
+            console.error('Authentication failed:', data.error || 'Missing telegram_id in response');
           }
         })
         .catch(error => {
