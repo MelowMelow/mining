@@ -93,7 +93,7 @@ async function startMining() {
 
 
 // Finish mining process: add the resource and update UI and backend
-function finishMining() {
+function async finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
 
