@@ -11,7 +11,7 @@ async function updateResource(telegramId, resourceType, amount) {
     // Validate incoming data
     if (
         !telegramId ||
-        !["gold", "silver", "copper"].includes(resourceType) ||
+        !["gold", "silver", "iron"].includes(resourceType) ||
         typeof amount !== "number" ||
         amount <= 0
     ) {

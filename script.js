@@ -4,7 +4,7 @@ let isMining = false;
 let resources = {
   gold: { count: 0, rarity: "rare" },
   silver: { count: 0, rarity: "uncommon" },
-  copper: { count: 0, rarity: "common" },
+  iron: { count: 0, rarity: "common" },
 };
 
 
@@ -98,7 +98,7 @@ function finishMining() {
   const resourceType = generateResource();
 
   // Validate resourceType before proceeding
-  if (!['gold', 'silver', 'copper'].includes(resourceType)) {
+  if (!['gold', 'silver', 'iron'].includes(resourceType)) {
     console.error("Invalid resource type:", resourceType);
     return;
   }
@@ -132,13 +132,13 @@ async function updateResourcesOnServer(resourceType) {
         return;
     }
 
-    if (!resourceType || !["gold", "silver", "copper"].includes(resourceType)) {
+    if (!resourceType || !["gold", "silver", "iron"].includes(resourceType)) {
         console.error("Invalid resource type:", resourceType);
         return;
     }
 
     try {
-        const response = await fetch('https://mining-pink.vercel.app/api/updateresources', {
+        const response = await fetch('/api/updateResources', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -217,7 +217,7 @@ function generateResource() {
   const random = Math.random() * 100;
   if (random < 5) return "gold";
   if (random < 35) return "silver";
-  return "copper";
+  return "iron";
 }
 
 // Toggle visibility of the inventory
