@@ -1,87 +1,75 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase with error checking
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-    console.error("Missing Supabase credentials in environment variables");
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
-    // Add CORS headers if needed
+    // Add CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method !== "POST") {
         return res.status(405).json({ 
-            success: false,
+            success: false, 
             error: "Method not allowed" 
         });
     }
 
     const { telegramId, resourceType, amount } = req.body;
 
-    // Enhanced validation with specific error messages
+    // Validate input
     if (!telegramId) {
         return res.status(400).json({ 
-            success: false,
+            success: false, 
             error: "Missing telegramId" 
         });
     }
-    
+
     if (!["gold", "silver", "copper"].includes(resourceType)) {
         return res.status(400).json({ 
-            success: false,
-            error: "Invalid resource type. Must be gold, silver, or copper" 
+            success: false, 
+            error: "Invalid resource type" 
         });
     }
-    
-    if (!amount || typeof amount !== 'number') {
+
+    if (typeof amount !== "number" || amount <= 0) {
         return res.status(400).json({ 
-            success: false,
-            error: "Invalid amount. Must be a number" 
+            success: false, 
+            error: "Invalid amount" 
         });
     }
 
     try {
-        console.log(`Attempting to update resource for user ${telegramId}: ${amount} ${resourceType}`);
+        console.log('Calling increment_resource with:', {
+            user_id: telegramId,
+            resource: resourceType,
+            increment: amount
+        });
 
-        // Call the Supabase stored procedure
         const { data, error } = await supabase.rpc("increment_resource", {
             user_id: telegramId,
             resource: resourceType,
-            increment: amount,
+            increment: amount
         });
-
-        // Log the response for debugging
-        console.log('Supabase response:', { data, error });
 
         if (error) {
             console.error('Supabase error:', error);
             return res.status(500).json({ 
-                success: false,
-                error: error.message,
-                details: error
+                success: false, 
+                error: error.message 
             });
         }
 
-        // Successful response
         return res.status(200).json({
             success: true,
-            data,
-            message: `Successfully updated ${resourceType} for user ${telegramId}`
+            data: data
         });
 
     } catch (error) {
         console.error('Server error:', error);
         return res.status(500).json({ 
-            success: false,
-            error: "Internal server error",
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            success: false, 
+            error: "Internal server error" 
         });
     }
 }
