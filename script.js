@@ -86,14 +86,14 @@ async function startMining() {
             clearInterval(interval);
             miningTimer.classList.add("hidden");
             isMining = false;
-            await finishMining();
+            finishMining();
         }
     }, 1000);
 }
 
 
 // Finish mining process: add the resource and update UI and backend
-function async finishMining() {
+function finishMining() {
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
 
