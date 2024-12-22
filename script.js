@@ -7,8 +7,8 @@ let resources = {
   copper: { count: 0, rarity: "common" },
 };
 
-let userId; // To store the authenticated user ID
-const userId = parseInt(telegramId, 10); // Convert to integer
+
+
 
 
 document.getElementById("mine-button").addEventListener("click", startMining);
@@ -24,10 +24,13 @@ async function startMining() {
     console.log("Mining button clicked!");
     
     // Check for authentication
-    const telegramId = localStorage.getItem('telegramId');
-	console.log("got id");
-    if (!telegramId) {
-        console.log("User not authenticated");
+    const telegramId = localStorage.getItem("telegramId");
+	if (!telegramId) {
+    console.error("User not authenticated or telegramId missing.");
+    return;
+	}
+	const userId = parseInt(telegramId, 10); // Safe only if telegramId exists
+
         
         // Get the existing initData from Telegram WebApp
         if (window.Telegram?.WebApp) {
