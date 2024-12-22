@@ -8,6 +8,8 @@ let resources = {
 };
 
 let userId; // To store the authenticated user ID
+const userId = parseInt(telegramId, 10); // Convert to integer
+
 
 document.getElementById("mine-button").addEventListener("click", startMining);
 document.getElementById("inventory-button").addEventListener("click", toggleInventory);
