@@ -23,16 +23,12 @@ document.getElementById("leaderboard-button").addEventListener("click", toggleLe
 async function startMining() {
     console.log("Mining button clicked!");
     
-    // Check for authentication
+    // Check for existing authentication
     const telegramId = localStorage.getItem("telegramId");
-	if (!telegramId) {
-    console.error("User not authenticated or telegramId missing.");
-    return;
-	}
-	const userId = parseInt(telegramId, 10); // Safe only if telegramId exists
-
-        
-        // Get the existing initData from Telegram WebApp
+    
+    // If not authenticated, try to authenticate
+    if (!telegramId) {
+        // Check if Telegram WebApp is available
         if (window.Telegram?.WebApp) {
             const tgWebApp = window.Telegram.WebApp;
             const initData = tgWebApp.initData;
@@ -45,8 +41,9 @@ async function startMining() {
                 });
 
                 const data = await response.json();
-                if (data.success) {
-                    localStorage.setItem('telegramId', data.telegram_id);
+                if (data.success && data.telegram_id) {  // Make sure telegram_id exists
+                    // Properly store both items with key and value
+                    localStorage.setItem('telegramId', data.telegram_id.toString());
                     localStorage.setItem('userData', JSON.stringify(data.user[0]));
                     console.log('Authentication successful');
                 } else {
@@ -63,37 +60,35 @@ async function startMining() {
         }
     }
 
+    // Continue with mining if energy is sufficient
+    if (isMining || energy < 30) {
+        console.log("Not enough energy to mine.");
+        return;
+    }
 
-  
-     
-  if (isMining || energy < 30) {
-    console.log("Not enough energy to mine.");
-    return;
-  }
+    isMining = true;
+    energy -= 30;
+    updateEnergy();
 
-  isMining = true;
-  energy -= 30;
-  updateEnergy();
+    // Rest of your mining logic...
+    const miningTimer = document.getElementById("mining-timer");
+    const timerCountdown = document.getElementById("timer-countdown");
+    miningTimer.classList.remove("hidden");
 
-
-  const miningTimer = document.getElementById("mining-timer");
-  const timerCountdown = document.getElementById("timer-countdown");
-  miningTimer.classList.remove("hidden");
-
-  let secondsLeft = 10;
-  timerCountdown.innerText = secondsLeft;
-
-  const interval = setInterval(() => {
-    secondsLeft--;
+    let secondsLeft = 10;
     timerCountdown.innerText = secondsLeft;
 
-    if (secondsLeft <= 0) {
-      clearInterval(interval);
-      miningTimer.classList.add("hidden");
-      isMining = false;
-      finishMining();
-    }
-  }, 1000);
+    const interval = setInterval(() => {
+        secondsLeft--;
+        timerCountdown.innerText = secondsLeft;
+
+        if (secondsLeft <= 0) {
+            clearInterval(interval);
+            miningTimer.classList.add("hidden");
+            isMining = false;
+            finishMining();
+        }
+    }, 1000);
 }
 
 
