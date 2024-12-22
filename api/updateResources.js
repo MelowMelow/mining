@@ -1,51 +1,43 @@
 import { createClient } from "@supabase/supabase-js";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 dotenv.config();
 
-// Initialize Supabase client with environment variables
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// Reusable function to update resources
-async function updateResource(telegramId, resourceType, amount) {
-    // Validate incoming data
-    if (
-        !telegramId ||
-        !["gold", "silver", "iron"].includes(resourceType) ||
-        typeof amount !== "number" ||
-        amount <= 0
-    ) {
-        throw new Error("Invalid input data");
-    }
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-    // Perform the update using a Supabase stored procedure
+  const { resourceType, id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  if (!["gold", "silver", "copper"].includes(resourceType)) {
+    return res.status(400).json({ error: "Invalid resource type" });
+  }
+
+  console.log("Received request to update resource:", { id, resourceType });
+
+  try {
+    // Call the increment_resource function directly via RPC
     const { data, error } = await supabase.rpc("increment_resource", {
-        user_id: telegramId,
-        resource: resourceType,
-        increment: amount,
+      user_id: id,  // Pass user_id (integer)
+      resource: resourceType,  // Pass resource type (string)
     });
 
     if (error) {
-        throw new Error(error.message);
+      console.error("Error updating resources:", error);
+      return res.status(500).json({ error: error.message });
     }
 
-    return data;
+    console.log("Resource incremented successfully:", data);
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.error("Error handling resource update:", error);
+    return res.status(500).json({ error: error.message });
+  }
 }
-
-// API handler
-const handler = async (req, res) => {
-    if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method not allowed" });
-    }
-
-    const { telegramId, resourceType, amount } = req.body;
-
-    try {
-        const data = await updateResource(telegramId, resourceType, amount);
-        return res.status(200).json({ success: true, data });
-    } catch (error) {
-        return res.status(400).json({ error: error.message });
-    }
-};
-
-export default handler;
