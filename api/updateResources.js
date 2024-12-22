@@ -3,37 +3,46 @@ import { createClient } from "@supabase/supabase-js";
 // Initialize Supabase client with environment variables
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-export default async function handler(req, res) {
-    // Ensure that only POST requests are allowed
+// Reusable function to update resources
+async function updateResource(telegramId, resourceType, amount) {
+    // Validate incoming data
+    if (
+        !telegramId ||
+        !["gold", "silver", "copper"].includes(resourceType) ||
+        typeof amount !== "number" ||
+        amount <= 0
+    ) {
+        throw new Error("Invalid input data");
+    }
+
+    // Perform the update using a Supabase stored procedure
+    const { data, error } = await supabase.rpc("increment_resource", {
+        user_id: telegramId,
+        resource: resourceType,
+        increment: amount,
+    });
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+
+// API handler
+const handler = async (req, res) => {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
 
-    // Extract data from the request body
     const { telegramId, resourceType, amount } = req.body;
 
-    // Validate incoming data
-    if (!telegramId || !["gold", "silver", "copper"].includes(resourceType) || !amount) {
-        return res.status(400).json({ error: "Invalid data" });
-    }
-
     try {
-        // Perform the update using a Supabase stored procedure
-        const { data, error } = await supabase.rpc("increment_resource", {
-            user_id: telegramId,
-            resource: resourceType,
-            increment: amount,
-        });
-
-        // Handle any errors returned by Supabase's stored procedure
-        if (error) {
-            return res.status(500).json({ error: error.message });
-        }
-
-        // Return the result of the update
+        const data = await updateResource(telegramId, resourceType, amount);
         return res.status(200).json({ success: true, data });
     } catch (error) {
-        // Handle any unexpected errors that occur during the execution
-        return res.status(500).json({ error: "Error updating resources" });
+        return res.status(400).json({ error: error.message });
     }
-}
+};
+
+export default handler;
