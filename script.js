@@ -86,7 +86,7 @@ async function startMining() {
             clearInterval(interval);
             miningTimer.classList.add("hidden");
             isMining = false;
-            finishMining();
+            await finishMining();
         }
     }, 1000);
 }
