@@ -1,189 +1,72 @@
-
 let energy = 1000;
 let isMining = false;
 let resources = {
   gold: { count: 0, rarity: "rare" },
   silver: { count: 0, rarity: "uncommon" },
-  iron: { count: 0, rarity: "common" },
+  copper: { count: 0, rarity: "common" },
 };
-
-
-
-
 
 document.getElementById("mine-button").addEventListener("click", startMining);
 document.getElementById("inventory-button").addEventListener("click", toggleInventory);
 document.getElementById("close-inventory").addEventListener("click", toggleInventory);
 document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
 
+function startMining() {
+  if (isMining || energy < 30) return;
 
+  isMining = true;
+  energy -= 30;
+  updateEnergy();
 
+  const miningTimer = document.getElementById("mining-timer");
+  const timerCountdown = document.getElementById("timer-countdown");
 
-// Start mining process when the user clicks the mine button
-async function startMining() {
-    console.log("Mining button clicked!");
-    
-    // Check for existing authentication
-    const telegramId = localStorage.getItem("telegramId");
-    
-    // If not authenticated, try to authenticate
-    if (!telegramId) {
-        // Check if Telegram WebApp is available
-        if (window.Telegram?.WebApp) {
-            const tgWebApp = window.Telegram.WebApp;
-            const initData = tgWebApp.initData;
+  miningTimer.classList.remove("hidden");
+  let secondsLeft = 10;
+  timerCountdown.innerText = secondsLeft;
 
-            try {
-                const response = await fetch('/api/authenticate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ initData })
-                });
-
-                const data = await response.json();
-                if (data.success && data.telegram_id) {  // Make sure telegram_id exists
-                    // Properly store both items with key and value
-                    localStorage.setItem('telegramId', data.telegram_id.toString());
-                    localStorage.setItem('userData', JSON.stringify(data.user[0]));
-                    console.log('Authentication successful');
-                } else {
-                    console.error('Authentication failed:', data.error);
-                    return;
-                }
-            } catch (error) {
-                console.error('Authentication error:', error);
-                return;
-            }
-        } else {
-            console.error('Telegram WebApp not available');
-            return;
-        }
-    }
-
-    // Continue with mining if energy is sufficient
-    if (isMining || energy < 30) {
-        console.log("Not enough energy to mine.");
-        return;
-    }
-
-    isMining = true;
-    energy -= 30;
-    updateEnergy();
-
-    // Rest of your mining logic...
-    const miningTimer = document.getElementById("mining-timer");
-    const timerCountdown = document.getElementById("timer-countdown");
-    miningTimer.classList.remove("hidden");
-
-    let secondsLeft = 10;
+  const interval = setInterval(() => {
+    secondsLeft -= 1;
     timerCountdown.innerText = secondsLeft;
 
-    const interval = setInterval(() => {
-        secondsLeft--;
-        timerCountdown.innerText = secondsLeft;
-
-        if (secondsLeft <= 0) {
-            clearInterval(interval);
-            miningTimer.classList.add("hidden");
-            isMining = false;
-            finishMining();
-        }
-    }, 1000);
+    if (secondsLeft <= 0) {
+      clearInterval(interval);
+      miningTimer.classList.add("hidden");
+      isMining = false;
+      finishMining();
+    }
+  }, 1000);
 }
 
-
-// Finish mining process: add the resource and update UI and backend
 function finishMining() {
+  console.log("finishMining called");
   const popup = document.getElementById("popup-resource");
   const resourceType = generateResource();
-
-  // Validate resourceType before proceeding
-  if (!['gold', 'silver', 'iron'].includes(resourceType)) {
-    console.error("Invalid resource type:", resourceType);
-    return;
-  }
-
-  // Increment resource count
   resources[resourceType].count++;
-
-  // Update stats and inventory (you may want to update UI accordingly)
   updateStats();
   updateInventory();
 
-  // Show mining popup with the updated resource
   popup.innerText = `+1 ${resourceType.toUpperCase()}`;
   popup.className = `active ${resources[resourceType].rarity}`;
+
   setTimeout(() => (popup.className = ""), 1000);
-
-  // At the end of the mining process, update the resource on the server
-  console.log("Calling updateResourcesOnServer with resource:", resourceType);
-  updateResourcesOnServer(resourceType);  // THIS is where we call the backend function
-}
-            
-
-
-
-async function updateResourcesOnServer(resourceType) {
-    const userId = localStorage.getItem("telegramId");
-
-    if (!telegramId) {
-        console.error("Authentication failed: telegramId not found");
-        alert("Authentication failed. Please log in first.");
-        return;
-    }
-
-    if (!resourceType || !["gold", "silver", "iron"].includes(resourceType)) {
-        console.error("Invalid resource type:", resourceType);
-        return;
-    }
-
-    try {
-        const response = await fetch("/api/updateResources", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resourceType, id: userId }), // ResourceType and User ID
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("Error from server:", error);
-      return;
-    }
-
-    const data = await response.json();
-    console.log("Server response:", data);
-  } catch (error) {
-    console.error("Failed to update resources on server:", error);
-  }
 }
 
-    } catch (error) {
-        console.error('Network or server error while updating resource:', error);
-        alert("There was an error while updating your resources. Please try again later.");
-    }
-}
-
-
-
-
-
-
-
-// Update the displayed stats for the user
 function updateStats() {
   for (let resource in resources) {
-    document.getElementById(`${resource}-count`).innerText = `${resource.charAt(0).toUpperCase() + resource.slice(1)}: ${resources[resource].count}`;
+    document.getElementById(`${resource}-count`).innerText = resources[resource].count;
   }
 }
 
-// Update the energy bar based on remaining energy
 function updateEnergy() {
+  const energyCount = document.getElementById("energy-count");
   const energyBar = document.getElementById("energy-fill");
-  energyBar.style.width = `${(energy / 1000) * 100}%`;
-  document.getElementById("energy-count").innerText = energy;
+  energyCount.innerText = energy;
+
+  const percent = (energy / 1000) * 100;
+  energyBar.style.width = `${percent}%`;
 }
 
-// Update inventory UI with current resources
 function updateInventory() {
   const inventoryList = document.getElementById("inventory-list");
   inventoryList.innerHTML = "";
@@ -199,22 +82,58 @@ function updateInventory() {
   }
 }
 
-// Generate a random resource type for mining
 function generateResource() {
   const random = Math.random() * 100;
-  if (random < 5) return "gold";
-  if (random < 35) return "silver";
-  return "iron";
+  if (random < 5) return "gold"; // Rare
+  if (random < 35) return "silver"; // Uncommon
+  return "copper"; // Common
 }
 
-// Toggle visibility of the inventory
 function toggleInventory() {
-  document.getElementById("inventory-frame").classList.toggle("hidden");
+  const inventoryFrame = document.getElementById("inventory-frame");
+  inventoryFrame.classList.toggle("hidden");
 }
 
-// Toggle visibility of the leaderboard
 function toggleLeaderboard() {
   const leaderboard = document.getElementById("leaderboard");
   leaderboard.classList.toggle("hidden");
-  document.querySelectorAll("#stats, #energy-bar, #inventory-button").forEach(el => el.classList.toggle("hidden"));
+
+  const uiElements = ["stats", "energy-bar", "inventory-button"];
+  uiElements.forEach((id) => document.getElementById(id).classList.toggle("hidden"));
 }
+
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  // Extract user data from the request body
+  const user = req.body;
+
+  if (!user || !user.id || !user.username) {
+    return res.status(400).json({ error: 'Missing user information' });
+  }
+
+  // Try to register the user in the database
+  const { data, error } = await supabase.from('users').upsert([
+    {
+      telegram_id: user.id,
+      username: user.username,
+      first_name: user.first_name || null,
+      last_name: user.last_name || null,
+    },
+  ], { onConflict: ['telegram_id'] });
+
+  if (error) {
+    return res.status(500).json({ error: 'Error registering user: ' + error.message });
+  }
+
+  // Respond with success
+  return res.status(200).json({ success: true, user: data });
+}
+
