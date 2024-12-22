@@ -18,9 +18,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Perform the update using a Supabase stored procedure (assuming you have a function called 'increment_resource')
+        // Perform the update using a Supabase stored procedure
         const { data, error } = await supabase.rpc("increment_resource", {
-            user_id: telegramId, // Using telegramId as user_id in your resources table
+            user_id: telegramId,
             resource: resourceType,
             increment: amount,
         });
@@ -33,8 +33,7 @@ export default async function handler(req, res) {
         // Return the result of the update
         return res.status(200).json({ success: true, data });
     } catch (error) {
-        // Handle any unexpected errors that occur during the execution of the function
+        // Handle any unexpected errors that occur during the execution
         return res.status(500).json({ error: "Error updating resources" });
     }
 }
-export default handler;
