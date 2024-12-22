@@ -124,7 +124,7 @@ function finishMining() {
 
 
 async function updateResourcesOnServer(resourceType) {
-    const telegramId = localStorage.getItem("telegramId");
+    const userId = localStorage.getItem("telegramId");
 
     if (!telegramId) {
         console.error("Authentication failed: telegramId not found");
@@ -138,37 +138,24 @@ async function updateResourcesOnServer(resourceType) {
     }
 
     try {
-        const response = await fetch('/api/updateResources', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                telegramId,
-                resourceType,
-                amount: 1,
-            }),
-        });
+        const response = await fetch("/api/updateResources", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resourceType, id: userId }), // ResourceType and User ID
+    });
 
-        // Check for successful status
-        if (!response.ok) {
-            // Throw error if status is not okay (any 4xx or 5xx status code)
-            throw new Error(`Request failed with status: ${response.status}`);
-        }
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("Error from server:", error);
+      return;
+    }
 
-        // Check if response is JSON
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            const text = await response.text();  // Fallback to get raw response text
-            throw new Error(`Expected JSON, but got: ${text}`);
-        }
-
-        // If it's JSON, parse it
-        const data = await response.json();
-
-        if (data.success) {
-            console.log(`Resource ${resourceType} updated successfully.`);
-        } else {
-            console.error(`Error updating resource: ${data.error}`);
-        }
+    const data = await response.json();
+    console.log("Server response:", data);
+  } catch (error) {
+    console.error("Failed to update resources on server:", error);
+  }
+}
 
     } catch (error) {
         console.error('Network or server error while updating resource:', error);
