@@ -12,8 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById("close-inventory").addEventListener("click", toggleInventory);
     document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
     
-    // Load existing resources if user is authenticated
-    loadExistingResources();
+    
 });
 
 async function loadExistingResources() {
@@ -59,6 +58,8 @@ async function startMining() {
                     localStorage.setItem('telegramId', data.telegram_id.toString());
                     localStorage.setItem('userData', JSON.stringify(data.user[0]));
                     console.log('Authentication successful');
+					// Load existing resources if user is authenticated
+					loadExistingResources();
                 } else {
                     console.error('Authentication failed:', data.error);
                     return;
