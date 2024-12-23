@@ -12,10 +12,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById("close-inventory").addEventListener("click", toggleInventory);
     document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
     
-    // Initialize UI
-    updateEnergy();
-    updateStats();
+    // Load existing resources if user is authenticated
+    loadExistingResources();
 });
+
+async function loadExistingResources() {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+        const user = JSON.parse(userData);
+        if (user.resources && user.resources[0]) {
+            const userResources = user.resources[0];
+            resources.gold.count = userResources.gold || 0;
+            resources.silver.count = userResources.silver || 0;
+            resources.iron.count = userResources.iron || 0;
+            
+            updateStats();
+            updateInventory();
+        }
+    }
+    updateEnergy();
+}
+
+// ... rest of the code remains unchanged ...
 
 async function startMining() {
     console.log("Mining button clicked!");
@@ -218,7 +236,7 @@ function updateInventory() {
             const listItem = document.createElement("li");
             listItem.className = `slot ${item.rarity}`;
             listItem.innerHTML = `<img src="${resource}.png" alt="${resource}">${item.count}`;
-            inventoryList.appendChild(listItem);
+            inventoryList.appendChild(listItem); 
         }
     }
 }
