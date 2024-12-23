@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import crypto from 'crypto';
-import dotenv from 'dotenv';
+import crypto from "crypto";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -9,56 +9,59 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 const handler = async (req, res) => {
     console.log("Received authentication request");
 
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" });
     }
 
     try {
         const { initData } = req.body;
 
+        // Validate incoming data
         if (!initData) {
-            return res.status(400).json({ error: 'No Telegram init data provided' });
+            return res.status(400).json({ error: "No Telegram init data provided" });
         }
 
         const params = new URLSearchParams(initData);
         const userData = Object.fromEntries(params.entries());
-
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+
         if (!TELEGRAM_BOT_TOKEN) {
-            console.error('Telegram Bot Token is not set');
-            return res.status(500).json({ error: 'Server configuration error' });
+            console.error("Telegram Bot Token is not set");
+            return res.status(500).json({ error: "Server configuration error" });
         }
 
-        const user = JSON.parse(userData.user || '{}');
+        // Parse Telegram user data
+        const user = JSON.parse(userData.user || "{}");
         const { id, username, first_name, last_name, photo_url, language_code } = user;
 
         if (!id) {
-            return res.status(400).json({ error: 'Invalid user data' });
+            return res.status(400).json({ error: "Invalid user data" });
         }
 
+        // Verify Telegram data integrity
         const dataCheckString = Object.entries(userData)
-            .filter(([key]) => key !== 'hash')
+            .filter(([key]) => key !== "hash")
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([key, value]) => `${key}=${value}`)
-            .join('\n');
+            .join("\n");
 
         const secretKey = crypto
-            .createHmac('sha256', 'WebAppData')
+            .createHmac("sha256", "WebAppData")
             .update(TELEGRAM_BOT_TOKEN)
             .digest();
 
         const calculatedHash = crypto
-            .createHmac('sha256', secretKey)
+            .createHmac("sha256", secretKey)
             .update(dataCheckString)
-            .digest('hex');
+            .digest("hex");
 
         if (calculatedHash !== userData.hash) {
-            return res.status(403).json({ error: 'Invalid signature' });
+            return res.status(403).json({ error: "Invalid signature" });
         }
 
-        // Check if the user exists and their resources
+        // Query the database for an existing user and their resources
         const { data: existingUser, error: userError } = await supabase
-            .from('users')
+            .from("users")
             .select(`
                 *,
                 resources (
@@ -67,16 +70,17 @@ const handler = async (req, res) => {
                     iron
                 )
             `)
-            .eq('telegram_id', id)
+            .eq("telegram_id", id)
             .single();
 
-        if (userError && userError.code !== 'PGRST116') {
-            console.error('Database user fetch error:', userError.message);
+        if (userError && userError.code !== "PGRST116") {
+            console.error("Database user fetch error:", userError.message);
             return res.status(500).json({ error: userError.message });
         }
 
+        // Handle existing user scenario
         if (existingUser) {
-            console.log(`User with Telegram ID ${id} found with resources:`, existingUser.resources);
+            console.log(`User with Telegram ID ${id} found.`, existingUser);
 
             return res.status(200).json({
                 success: true,
@@ -85,11 +89,23 @@ const handler = async (req, res) => {
                 resources: existingUser.resources || { gold: 0, silver: 0, iron: 0 },
                 isNewUser: false,
             });
+			if (data.resources) {
+			// Load resources into the application
+				const resources = {
+					gold: data.resources.gold || 0,
+					silver: data.resources.silver || 0,
+					iron: data.resources.iron || 0,
+			};
+
+			// Update UI with the loaded resources
+			updateStats(resources);
+			updateInventory(resources);
+
         }
 
-        // Create new user
+        // Register new user
         const { data: newUser, error: insertError } = await supabase
-            .from('users')
+            .from("users")
             .insert([{
                 telegram_id: id,
                 username: username || null,
@@ -102,13 +118,13 @@ const handler = async (req, res) => {
             .single();
 
         if (insertError) {
-            console.error('User creation error:', insertError.message);
+            console.error("User creation error:", insertError.message);
             return res.status(500).json({ error: insertError.message });
         }
 
-        // Add default resources
+        // Initialize default resources for the new user
         const { data: resourceSetup, error: resourceError } = await supabase
-            .from('resources')
+            .from("resources")
             .insert([{
                 user_id: newUser.id,
                 gold: 0,
@@ -119,7 +135,7 @@ const handler = async (req, res) => {
             .single();
 
         if (resourceError) {
-            console.error('Resource creation error:', resourceError.message);
+            console.error("Resource creation error:", resourceError.message);
             return res.status(500).json({ error: resourceError.message });
         }
 
@@ -134,9 +150,10 @@ const handler = async (req, res) => {
         });
     } catch (error) {
         console.error("Authentication error:", error.message);
-        return res.status(500).json({ 
-            error: error.message,
-            stack: error.stack,
+        return res.status(500).json({
+            error: "Internal Server Error",
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
         });
     }
 };
