@@ -155,7 +155,7 @@ async function updateResourcesOnServer(resourceType) {
                 'Accept': 'application/json'
             },
             body: JSON.stringify(requestBody),
-        });
+        };
 
         console.log('Received response with status:', response.status);
 
@@ -179,13 +179,13 @@ async function updateResourcesOnServer(resourceType) {
             throw new Error(data.error || 'Unknown error occurred');
         }
 
-    } catch (error) {
+    } 	catch (error) {
         console.error('Detailed error in updateResourcesOnServer:', {
             message: error.message,
             stack: error.stack,
             type: error.name
         });
-    }
+		}
 }
 
 function updateStats() {
