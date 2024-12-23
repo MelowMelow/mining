@@ -240,6 +240,7 @@ function toggleInventory() {
 function toggleLeaderboard() {
     const leaderboard = document.getElementById("leaderboard");
     const elements = document.querySelectorAll("#stats, #energy-bar, #inventory-button");
+	alert("Soon");
     
     if (leaderboard) {
         leaderboard.classList.toggle("hidden");
