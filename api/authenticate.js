@@ -56,12 +56,12 @@ const handler = async (req, res) => {
             return res.status(403).json({ error: 'Invalid signature' });
         }
 
-        // Check if the user exists and get their resources in a single query
-        const { data: existingUser, error: existError } = await supabase
-            .from('resources')
+        // Check if the user exists and their resources
+        const { data: existingUser, error: userError } = await supabase
+            .from('users')
             .select(`
                 *,
-                resources:resources(
+                resources (
                     gold,
                     silver,
                     iron
@@ -70,18 +70,24 @@ const handler = async (req, res) => {
             .eq('telegram_id', id)
             .single();
 
+        if (userError && userError.code !== 'PGRST116') {
+            console.error('Database user fetch error:', userError.message);
+            return res.status(500).json({ error: userError.message });
+        }
+
         if (existingUser) {
-            console.log(`User with Telegram ID: ${id} found in the database with resources:`, existingUser.resources);
+            console.log(`User with Telegram ID ${id} found with resources:`, existingUser.resources);
+
             return res.status(200).json({
                 success: true,
                 user: existingUser,
                 telegram_id: id,
-                resources: existingUser.resources[0] || { gold: 0, silver: 0, iron: 0 },
-                isNewUser: false
+                resources: existingUser.resources || { gold: 0, silver: 0, iron: 0 },
+                isNewUser: false,
             });
         }
 
-        // If user doesn't exist, create new user and resources
+        // Create new user
         const { data: newUser, error: insertError } = await supabase
             .from('users')
             .insert([{
@@ -90,66 +96,49 @@ const handler = async (req, res) => {
                 first_name: first_name || null,
                 last_name: last_name || null,
                 photo_url: photo_url || null,
-                language_code: language_code || null
+                language_code: language_code || null,
             }])
-            .select();
+            .select()
+            .single();
 
         if (insertError) {
-            console.error('User registration error:', insertError);
+            console.error('User creation error:', insertError.message);
             return res.status(500).json({ error: insertError.message });
         }
 
-        // Insert resources for the new user
+        // Add default resources
         const { data: resourceSetup, error: resourceError } = await supabase
             .from('resources')
             .insert([{
-                user_id: newUser[0].id,
+                user_id: newUser.id,
                 gold: 0,
                 silver: 0,
-                iron: 0
+                iron: 0,
             }])
-            .select();
+            .select()
+            .single();
 
         if (resourceError) {
-            console.error('Resource setup error:', resourceError);
+            console.error('Resource creation error:', resourceError.message);
             return res.status(500).json({ error: resourceError.message });
         }
 
-        console.log(`New user with Telegram ID: ${id} successfully registered.`);
+        console.log(`New user created with Telegram ID ${id}. Resources initialized.`);
 
         return res.status(200).json({
             success: true,
-            user: newUser[0],
+            user: newUser,
             telegram_id: id,
-            resources: resourceSetup[0],
-            isNewUser: true
+            resources: resourceSetup,
+            isNewUser: true,
         });
     } catch (error) {
-        console.error("Authentication error:", error);
+        console.error("Authentication error:", error.message);
         return res.status(500).json({ 
             error: error.message,
-            stack: error.stack 
+            stack: error.stack,
         });
     }
-	// Add this to your authentication success handler
-if (data.success && data.telegram_id) {
-    localStorage.setItem('telegramId', data.telegram_id.toString());
-    localStorage.setItem('userData', JSON.stringify(data.user));
-    
-    // Load saved resources if they exist
-    if (data.resources) {
-        resources = {
-            gold: { count: data.resources.gold || 0, rarity: "rare" },
-            silver: { count: data.resources.silver || 0, rarity: "uncommon" },
-            iron: { count: data.resources.iron || 0, rarity: "common" }
-        };
-        
-        // Update UI with loaded resources
-        updateStats();
-        updateInventory();
-    }
-    
-    console.log('Authentication successful, resources loaded:', resources);
-}
+};
 
 export default handler;
