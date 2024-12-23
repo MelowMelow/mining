@@ -257,7 +257,7 @@ async function loadExistingResources() {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ initData: window.Telegram.WebApp.initData })
-    }
+    });
     const data = await response.json();
             if (data.success && data.telegram_id) {
                 localStorage.setItem('userData', JSON.stringify(data.user));
