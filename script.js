@@ -17,19 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadExistingResources() {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-        const user = JSON.parse(userData);
-        if (user.resources && user.resources[0]) {
-            const userResources = user.resources[0];
-            resources.gold.count = userResources.gold || 0;
-            resources.silver.count = userResources.silver || 0;
-            resources.iron.count = userResources.iron || 0;
-            
-            updateStats();
-            updateInventory();
-        }
-    }
+    const data = await response.json();
+            if (data.success && data.telegram_id) {
+                localStorage.setItem('userData', JSON.stringify(data.user));
+                
+                if (data.user?.resources?.[0]) {
+                    resources.gold.count = Number(data.user.resources[0].gold) || 0;
+                    resources.silver.count = Number(data.user.resources[0].silver) || 0;
+                    resources.iron.count = Number(data.user.resources[0].iron) || 0;
+                    updateStats();
+                    updateInventory();
+                }
+            }
     updateEnergy();
 }
 
