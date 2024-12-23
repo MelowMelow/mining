@@ -15,21 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
 });
 
-async function loadExistingResources() {
-    const data = await response.json();
-            if (data.success && data.telegram_id) {
-                localStorage.setItem('userData', JSON.stringify(data.user));
-                
-                if (data.user?.resources?.[0]) {
-                    resources.gold.count = Number(data.user.resources[0].gold) || 0;
-                    resources.silver.count = Number(data.user.resources[0].silver) || 0;
-                    resources.iron.count = Number(data.user.resources[0].iron) || 0;
-                    updateStats();
-                    updateInventory();
-                }
-            }
-    updateEnergy();
-}
+
 
 // ... rest of the code remains unchanged ...
 
@@ -264,4 +250,25 @@ function toggleLeaderboard() {
         leaderboard.classList.toggle("hidden");
         elements.forEach(el => el.classList.toggle("hidden"));
     }
+}
+
+async function loadExistingResources() {
+	const response = await fetch('/api/authenticate', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ initData: window.Telegram.WebApp.initData })
+    }
+    const data = await response.json();
+            if (data.success && data.telegram_id) {
+                localStorage.setItem('userData', JSON.stringify(data.user));
+                
+                if (data.user?.resources?.[0]) {
+                    resources.gold.count = Number(data.user.resources[0].gold) || 0;
+                    resources.silver.count = Number(data.user.resources[0].silver) || 0;
+                    resources.iron.count = Number(data.user.resources[0].iron) || 0;
+                    updateStats();
+                    updateInventory();
+                }
+            }
+    updateEnergy();
 }
