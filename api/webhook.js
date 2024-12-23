@@ -4,7 +4,7 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 // Set up command handlers
 bot.start((ctx) => {
     console.log("User started bot:", ctx.from.id);
-    return ctx.reply("Welcome! You can now start interacting and mining resources.");
+    return ctx.reply("Welcome! You can now start interacting and mining resources together t.me/theminecryptobot/marsmine.");
 });
 
 export default async (req, res) => {
