@@ -116,6 +116,7 @@ function finishMining() {
     updateResourcesOnServer(resourceType);
 }
 
+// Updated client-side updateResourcesOnServer function
 async function updateResourcesOnServer(resourceType) {
     const telegramId = localStorage.getItem("telegramId");
 
@@ -131,31 +132,38 @@ async function updateResourcesOnServer(resourceType) {
     }
 
     try {
-        const response = await fetch('https://mining-pink.vercel.app/api/updateresources', {
+        const response = await fetch('/api/updateresources', {  // Changed to relative URL
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify({
-                telegramId,
-                resourceType,
-                amount: 1,
+                telegramId: telegramId,
+                resourceType: resourceType,
+                amount: 1
             }),
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server response:', errorText);
             throw new Error(`Request failed with status: ${response.status}`);
         }
 
         const data = await response.json();
 
         if (data.success) {
-            console.log(`Resource ${resourceType} updated successfully.`);
+            console.log(`Resource ${resourceType} updated successfully:`, data);
         } else {
-            console.error(`Error updating resource: ${data.error}`);
+            console.error(`Error updating resource:`, data.error);
+            throw new Error(data.error || 'Unknown error occurred');
         }
 
     } catch (error) {
         console.error('Network or server error while updating resource:', error);
-        alert("There was an error while updating your resources. Please try again later.");
+        // Don't show alert to user, just log the error
+        console.error("Failed to update resources:", error);
     }
 }
 
