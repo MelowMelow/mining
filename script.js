@@ -108,7 +108,7 @@ function finishMining() {
         return;
     }
 
-    resources[resourceType].count++;
+    
 
     
 
