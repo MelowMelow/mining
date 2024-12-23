@@ -116,9 +116,10 @@ function finishMining() {
     updateResourcesOnServer(resourceType);
 }
 
-// Updated client-side updateResourcesOnServer function
 async function updateResourcesOnServer(resourceType) {
+    console.log('Starting updateResourcesOnServer with resourceType:', resourceType);
     const telegramId = localStorage.getItem("telegramId");
+    console.log('Retrieved telegramId from localStorage:', telegramId);
 
     if (!telegramId) {
         console.error("Authentication failed: telegramId not found");
@@ -131,39 +132,56 @@ async function updateResourcesOnServer(resourceType) {
         return;
     }
 
+    const requestBody = {
+        telegramId: telegramId,
+        resourceType: resourceType,
+        amount: 1
+    };
+    console.log('Preparing to send request with body:', requestBody);
+
     try {
-        const response = await fetch('/api/updateresources', {  // Changed to relative URL
+        // First, log the full URL we're trying to reach
+        const baseUrl = window.location.origin; // Gets the base URL of your application
+        const fullUrl = `${baseUrl}/api/updateresources`;
+        console.log('Attempting to send request to:', fullUrl);
+
+        const response = await fetch(fullUrl, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                telegramId: telegramId,
-                resourceType: resourceType,
-                amount: 1
-            }),
+            body: JSON.stringify(requestBody),
         });
+
+        console.log('Received response with status:', response.status);
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Server response:', errorText);
-            throw new Error(`Request failed with status: ${response.status}`);
+            console.log('Error response body:', errorText);
+            throw new Error(`Request failed with status: ${response.status}. Body: ${errorText}`);
         }
 
         const data = await response.json();
+        console.log('Successfully parsed response data:', data);
 
         if (data.success) {
             console.log(`Resource ${resourceType} updated successfully:`, data);
+            // Update local state
+            resources[resourceType].count++;
+            updateStats();
+            updateInventory();
         } else {
             console.error(`Error updating resource:`, data.error);
             throw new Error(data.error || 'Unknown error occurred');
         }
 
     } catch (error) {
-        console.error('Network or server error while updating resource:', error);
-        // Don't show alert to user, just log the error
-        console.error("Failed to update resources:", error);
+        console.error('Detailed error in updateResourcesOnServer:', {
+            message: error.message,
+            stack: error.stack,
+            type: error.name
+        });
     }
 }
 
