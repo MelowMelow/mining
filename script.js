@@ -110,8 +110,7 @@ function finishMining() {
 
     resources[resourceType].count++;
 
-    updateStats();
-    updateInventory();
+    
 
     popup.innerText = `+1 ${resourceType.toUpperCase()}`;
     popup.className = `active ${resources[resourceType].rarity}`;
