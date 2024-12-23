@@ -253,14 +253,19 @@ function toggleLeaderboard() {
 }
 
 async function loadExistingResources() {
-	const response = await fetch('/api/authenticate', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ initData: window.Telegram.WebApp.initData })
-    });
-    const data = await response.json();
+	if (!telegramId && window.Telegram?.WebApp) {
+        try {
+            const response = await fetch('/api/authenticate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: window.Telegram.WebApp.initData })
+            });
+
+            const data = await response.json();
             if (data.success && data.telegram_id) {
+                localStorage.setItem('telegramId', data.telegram_id.toString());
                 localStorage.setItem('userData', JSON.stringify(data.user));
+                console.log('Authentication successful');
                 
                 if (data.user?.resources?.[0]) {
                     resources.gold.count = Number(data.user.resources[0].gold) || 0;
@@ -269,6 +274,13 @@ async function loadExistingResources() {
                     updateStats();
                     updateInventory();
                 }
+            } else {
+                console.error('Authentication failed:', data.error);
+                return;
             }
-    updateEnergy();
+        } catch (error) {
+            console.error('Authentication error:', error);
+            return;
+        }
+    }
 }
