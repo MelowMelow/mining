@@ -58,7 +58,7 @@ const handler = async (req, res) => {
 
         // Check if the user exists and get their resources in a single query
         const { data: existingUser, error: existError } = await supabase
-            .from('users')
+            .from('resources')
             .select(`
                 *,
                 resources:resources(
@@ -132,24 +132,24 @@ const handler = async (req, res) => {
         });
     }
 	// Add this to your authentication success handler
-	if (data.success && data.telegram_id) {
-		localStorage.setItem('telegramId', data.telegram_id.toString());
-		localStorage.setItem('userData', JSON.stringify(data.user));
-		
-		// Load saved resources if they exist
-		if (data.resources) {
-			resources = {
-				gold: { count: data.resources.gold || 0, rarity: "rare" },
-				silver: { count: data.resources.silver || 0, rarity: "uncommon" },
-				iron: { count: data.resources.iron || 0, rarity: "common" }
-			};
-			
-			// Update UI with loaded resources
-			updateStats();
-			updateInventory();
-		}
-		
-		console.log('Authentication successful, resources loaded:', resources);
+if (data.success && data.telegram_id) {
+    localStorage.setItem('telegramId', data.telegram_id.toString());
+    localStorage.setItem('userData', JSON.stringify(data.user));
+    
+    // Load saved resources if they exist
+    if (data.resources) {
+        resources = {
+            gold: { count: data.resources.gold || 0, rarity: "rare" },
+            silver: { count: data.resources.silver || 0, rarity: "uncommon" },
+            iron: { count: data.resources.iron || 0, rarity: "common" }
+        };
+        
+        // Update UI with loaded resources
+        updateStats();
+        updateInventory();
+    }
+    
+    console.log('Authentication successful, resources loaded:', resources);
 }
 
 export default handler;
