@@ -9,7 +9,6 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 const handler = async (req, res) => {
     console.log("Received authentication request");
 
-    // Ensure only POST requests are allowed
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -17,7 +16,6 @@ const handler = async (req, res) => {
     try {
         const { initData } = req.body;
 
-        // Ensure initData exists in the body
         if (!initData) {
             return res.status(400).json({ error: 'No Telegram init data provided' });
         }
@@ -58,29 +56,32 @@ const handler = async (req, res) => {
             return res.status(403).json({ error: 'Invalid signature' });
         }
 
-        // Check if the user exists in the database using Telegram ID
+        // Check if the user exists and get their resources in a single query
         const { data: existingUser, error: existError } = await supabase
             .from('users')
-            .select('*')
+            .select(`
+                *,
+                resources:resources(
+                    gold,
+                    silver,
+                    iron
+                )
+            `)
             .eq('telegram_id', id)
             .single();
 
         if (existingUser) {
-            console.log(`User with Telegram ID: ${id} found in the database.`);
+            console.log(`User with Telegram ID: ${id} found in the database with resources:`, existingUser.resources);
             return res.status(200).json({
                 success: true,
                 user: existingUser,
-				telegram_id: id,
+                telegram_id: id,
+                resources: existingUser.resources[0] || { gold: 0, silver: 0, iron: 0 },
                 isNewUser: false
             });
-		if (typeof window !== "undefined") {
-            localStorage.setItem('user_id', id);
-        }
-        } else {
-            console.log(`No user found with Telegram ID: ${id}. Registering new user.`);
         }
 
-        // Insert a new user record if not found
+        // If user doesn't exist, create new user and resources
         const { data: newUser, error: insertError } = await supabase
             .from('users')
             .insert([{
@@ -105,8 +106,9 @@ const handler = async (req, res) => {
                 user_id: newUser[0].id,
                 gold: 0,
                 silver: 0,
-                copper: 0
-            }]);
+                iron: 0
+            }])
+            .select();
 
         if (resourceError) {
             console.error('Resource setup error:', resourceError);
@@ -118,7 +120,8 @@ const handler = async (req, res) => {
         return res.status(200).json({
             success: true,
             user: newUser[0],
-			telegram_id: id,
+            telegram_id: id,
+            resources: resourceSetup[0],
             isNewUser: true
         });
     } catch (error) {
@@ -128,7 +131,25 @@ const handler = async (req, res) => {
             stack: error.stack 
         });
     }
+	// Add this to your authentication success handler
+	if (data.success && data.telegram_id) {
+		localStorage.setItem('telegramId', data.telegram_id.toString());
+		localStorage.setItem('userData', JSON.stringify(data.user));
+		
+		// Load saved resources if they exist
+		if (data.resources) {
+			resources = {
+				gold: { count: data.resources.gold || 0, rarity: "rare" },
+				silver: { count: data.resources.silver || 0, rarity: "uncommon" },
+				iron: { count: data.resources.iron || 0, rarity: "common" }
+			};
+			
+			// Update UI with loaded resources
+			updateStats();
+			updateInventory();
+		}
+		
+		console.log('Authentication successful, resources loaded:', resources);
 }
 
-// Export the handler function to be used in serverless
 export default handler;
