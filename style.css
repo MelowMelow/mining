@@ -23,7 +23,7 @@ body {
 }
 #leaderboard-button {
   position: absolute; /* Position relative to the parent container */
-  top: 80%;           /* 50% from the top */
+  top: 86%;           /* 50% from the top */
   left: 50%;          /* 50% from the left */
   transform: translate(-50%, -50%); /* Center the button perfectly */
   background-color: red; /* Existing styling */
@@ -36,7 +36,7 @@ body {
 }
 #mine-button {
   position: absolute; /* Position relative to the parent container */
-  top: 70%;           /* 50% from the top */
+  top: 76%;           /* 50% from the top */
   left: 50%;          /* 50% from the left */
   transform: translate(-50%, -50%); /* Center the button perfectly */
   background-color: red; /* Existing styling */
@@ -222,4 +222,22 @@ button {
 
 #leaderboard.hidden {
   display: none;
+}
+#inventory-list {
+  list-style: none;
+  padding: 15px;
+}
+
+#inventory-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+#inventory-list img {
+  width: 24px;  /* Set specific width for resource images */
+  height: 24px; /* Set specific height for resource images */
+  margin-right: 10px;
+  object-fit: contain; /* Ensures image maintains aspect ratio */
 }
