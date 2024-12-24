@@ -236,8 +236,8 @@ button {
 }
 
 #inventory-list img {
-  width: 50px;  /* Set specific width for resource images */
-  height: 50px; /* Set specific height for resource images */
+  width: 70px;  /* Set specific width for resource images */
+  height: 70px; /* Set specific height for resource images */
   margin-right: 10px;
   object-fit: contain; /* Ensures image maintains aspect ratio */
 }
