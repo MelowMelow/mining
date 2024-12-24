@@ -196,7 +196,24 @@ function updateInventory() {
     if (item.count > 0) {
       const listItem = document.createElement("li");
       listItem.className = `slot ${item.rarity}`;
-      listItem.innerHTML = `<img src="${resource}.png" alt="${resource}">${item.count}`;
+      
+      // Create resource info div (left side)
+      const resourceInfo = document.createElement("div");
+      resourceInfo.className = "resource-info";
+      resourceInfo.innerHTML = `<img src="${resource}.png" alt="${resource}">${item.count}`;
+      
+      // Create trade button
+      const tradeButton = document.createElement("button");
+      tradeButton.className = "trade-button";
+      tradeButton.textContent = "Trade";
+      tradeButton.onclick = () => {
+        alert("Trading system coming soon!");
+      };
+      
+      // Add both elements to list item
+      listItem.appendChild(resourceInfo);
+      listItem.appendChild(tradeButton);
+      
       inventoryList.appendChild(listItem);
     }
   }
