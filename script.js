@@ -35,11 +35,23 @@ async function authenticateAndLoadResources() {
         console.log("Authentication successful", data);
 
         // Update resources from the authentication response
-        if (data.resources) {
-          resources.gold.count = Number(data.resources.gold) || 0;
-          resources.silver.count = Number(data.resources.silver) || 0;
-          resources.iron.count = Number(data.resources.iron) || 0;
-          updateStats();
+        if (data.resources && Array.isArray(data.resources) && data.resources[0]) {
+          // Get the first resources object from the array
+          const userResources = data.resources[0];
+          resources.gold.count = Number(userResources.gold) || 0;
+          resources.silver.count = Number(userResources.silver) || 0;
+          resources.iron.count = Number(userResources.iron) || 0;
+          
+          // Update UI elements
+          const goldCount = document.getElementById('gold-count');
+          const silverCount = document.getElementById('silver-count');
+          const ironCount = document.getElementById('iron-count');
+          
+          if (goldCount) goldCount.textContent = resources.gold.count;
+          if (silverCount) silverCount.textContent = resources.silver.count;
+          if (ironCount) ironCount.textContent = resources.iron.count;
+          
+          // Update inventory as well
           updateInventory();
         }
       } else {
@@ -147,22 +159,17 @@ async function updateResourcesOnServer(resourceType) {
     const data = await response.json();
     if (data.success) {
       resources[resourceType].count++;
-      updateStats();
+      // Update the specific resource count in UI
+      const countElement = document.getElementById(`${resourceType}-count`);
+      if (countElement) {
+        countElement.textContent = resources[resourceType].count;
+      }
       updateInventory();
     } else {
       throw new Error(data.error || "Unknown error occurred");
     }
   } catch (error) {
     console.error("Error updating resources:", error);
-  }
-}
-
-function updateStats() {
-  for (let resource in resources) {
-    const element = document.getElementById(`${resource}-count`);
-    if (element) {
-      element.innerText = resources[resource].count;
-    }
   }
 }
 
