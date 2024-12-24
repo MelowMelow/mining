@@ -11,14 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
   document.getElementById("close-inventory").addEventListener("click", toggleInventory);
   document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
+  
+  // Authenticate and load resources immediately when the page loads
+  authenticateAndLoadResources();
 });
 
-async function startMining() {
-  console.log("Mining button clicked!");
-
-  const telegramId = localStorage.getItem("telegramId");
-
-  if (!telegramId && window.Telegram?.WebApp) {
+async function authenticateAndLoadResources() {
+  if (window.Telegram?.WebApp) {
     const tgWebApp = window.Telegram.WebApp;
     const initData = tgWebApp.initData;
 
@@ -32,17 +31,33 @@ async function startMining() {
       const data = await response.json();
       if (data.success && data.telegram_id) {
         localStorage.setItem("telegramId", data.telegram_id.toString());
-        localStorage.setItem("userData", JSON.stringify(data.user[0]));
-        console.log("Authentication successful");
-        loadExistingResources();
+        localStorage.setItem("userData", JSON.stringify(data.user));
+        console.log("Authentication successful", data);
+
+        // Update resources from the authentication response
+        if (data.resources) {
+          resources.gold.count = Number(data.resources.gold) || 0;
+          resources.silver.count = Number(data.resources.silver) || 0;
+          resources.iron.count = Number(data.resources.iron) || 0;
+          updateStats();
+          updateInventory();
+        }
       } else {
         console.error("Authentication failed:", data.error);
-        return;
       }
     } catch (error) {
       console.error("Authentication error:", error);
-      return;
     }
+  }
+}
+
+async function startMining() {
+  console.log("Mining button clicked!");
+
+  const telegramId = localStorage.getItem("telegramId");
+  if (!telegramId) {
+    console.error("Not authenticated");
+    return;
   }
 
   if (isMining || energy < 30) {
@@ -101,18 +116,10 @@ function finishMining() {
 }
 
 async function updateResourcesOnServer(resourceType) {
-  console.log("Starting updateResourcesOnServer with resourceType:", resourceType);
   const telegramId = localStorage.getItem("telegramId");
-  console.log("Retrieved telegramId from localStorage:", telegramId);
 
   if (!telegramId) {
     console.error("Authentication failed: telegramId not found");
-    alert("Authentication failed. Please log in first.");
-    return;
-  }
-
-  if (!resourceType || !["gold", "silver", "iron"].includes(resourceType)) {
-    console.error("Invalid resource type:", resourceType);
     return;
   }
 
@@ -121,14 +128,10 @@ async function updateResourcesOnServer(resourceType) {
     resourceType: resourceType,
     amount: 1,
   };
-  console.log("Preparing to send request with body:", requestBody);
 
   try {
     const baseUrl = window.location.origin;
-    const fullUrl = `${baseUrl}/api/updateresources`;
-    console.log("Attempting to send request to:", fullUrl);
-
-    const response = await fetch(fullUrl, {
+    const response = await fetch(`${baseUrl}/api/updateresources`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -137,32 +140,20 @@ async function updateResourcesOnServer(resourceType) {
       body: JSON.stringify(requestBody),
     });
 
-    console.log("Received response with status:", response.status);
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.log("Error response body:", errorText);
-      throw new Error(`Request failed with status: ${response.status}. Body: ${errorText}`);
+      throw new Error(`Request failed with status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("Successfully parsed response data:", data);
-
     if (data.success) {
-      console.log(`Resource ${resourceType} updated successfully:`, data);
       resources[resourceType].count++;
       updateStats();
       updateInventory();
     } else {
-      console.error("Error updating resource:", data.error);
       throw new Error(data.error || "Unknown error occurred");
     }
   } catch (error) {
-    console.error("Detailed error in updateResourcesOnServer:", {
-      message: error.message,
-      stack: error.stack,
-      type: error.name,
-    });
+    console.error("Error updating resources:", error);
   }
 }
 
@@ -226,39 +217,5 @@ function toggleLeaderboard() {
   if (leaderboard) {
     leaderboard.classList.toggle("hidden");
     elements.forEach((el) => el.classList.toggle("hidden"));
-  }
-}
-
-async function loadExistingResources() {
-  const telegramId = localStorage.getItem("telegramId");
-  if (!telegramId && window.Telegram?.WebApp) {
-    try {
-      const response = await fetch("/api/authenticate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: window.Telegram.WebApp.initData }),
-      });
-
-      const data = await response.json();
-      if (data.success && data.telegram_id) {
-        localStorage.setItem("telegramId", data.telegram_id.toString());
-        localStorage.setItem("userData", JSON.stringify(data.user));
-        console.log("Authentication successful");
-
-        if (data.user?.resources?.[0]) {
-          resources.gold.count = Number(data.user.resources[0].gold) || 0;
-          resources.silver.count = Number(data.user.resources[0].silver) || 0;
-          resources.iron.count = Number(data.user.resources[0].iron) || 0;
-          updateStats();
-          updateInventory();
-        }
-      } else {
-        console.error("Authentication failed:", data.error);
-        return;
-      }
-    } catch (error) {
-      console.error("Authentication error:", error);
-      return;
-    }
   }
 }
