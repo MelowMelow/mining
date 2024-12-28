@@ -44,13 +44,13 @@ function initializeFriendsButton() {
         if (friendsDiv.style.display === "none" || !friendsDiv.style.display) {
 
             // Generate and display the referral link
-            const referralLink = generateTelegramReferralLink("TheMineCryptoBot");
+		const referralLink = generateTelegramReferralLink("TheMineCryptoBot");
 
-            if (referralLink) {
-                document.getElementById("referralLinkPlaceholder").innerHTML = 
-                    `<a href="#" onclick="event.preventDefault(); copyToClipboard('${referralLink}')">Click to copy referral link</a>`;
-                friendsDiv.style.display = "block"; // Show the 'friends' div
-            }
+        if (referralLink) {
+            document.getElementById("referralLinkPlaceholder").innerHTML = 
+                `<a href="#" onclick="event.preventDefault(); copyToClipboard('${referralLink}')">Click to copy referral link</a>`;
+            friendsDiv.style.display = "block"; // Show the 'friends' div
+        }
         } else {
             friendsDiv.style.display = "none"; // Hide the 'friends' div if it's already visible
         }
