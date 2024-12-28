@@ -30,6 +30,9 @@ function initializeFriendsButton() {
   document.getElementById("friends").style.display = "none";
   document.getElementById("showFriendsButton").addEventListener("click", function() {
     // Your existing button click handler code
+	generateTelegramReferralLink();
+	copyToClipboard();
+	
   });
 }
 
