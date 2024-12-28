@@ -1,3 +1,4 @@
+export { generateTelegramReferralLink, copyToClipboard } from './get-referral-link.js';
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
     // Hide friends div initially
