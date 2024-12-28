@@ -6,6 +6,9 @@ let resources = {
   iron: { count: 0, rarity: "common" },
 };
 
+// Set initial state
+document.getElementById("friends").style.display = "none";
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("mine-button").addEventListener("click", startMining);
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
