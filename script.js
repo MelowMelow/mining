@@ -1,3 +1,6 @@
+// script.js
+import { generateTelegramReferralLink, copyToClipboard } from './get-referral-link.js';
+
 let energy = 1000;
 let isMining = false;
 let resources = {
@@ -9,15 +12,26 @@ let resources = {
 // Set initial state
 
 
+
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("mine-button").addEventListener("click", startMining);
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
   document.getElementById("close-inventory").addEventListener("click", toggleInventory);
   document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
+  initializeFriendsButton();
+  
   
   // Authenticate and load resources immediately when the page loads
   authenticateAndLoadResources();
 });
+
+function initializeFriendsButton() {
+  document.getElementById("friends").style.display = "none";
+  document.getElementById("showFriendsButton").addEventListener("click", function() {
+    // Your existing button click handler code
+  });
+}
 
 async function authenticateAndLoadResources() {
   if (window.Telegram?.WebApp) {
