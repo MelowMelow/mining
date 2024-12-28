@@ -1,5 +1,4 @@
-// script.js
-import { generateTelegramReferralLink, copyToClipboard } from './get-referral-link.js';
+
 
 let energy = 1000;
 let isMining = false;
@@ -30,9 +29,35 @@ function initializeFriendsButton() {
   document.getElementById("friends").style.display = "none";
   document.getElementById("showFriendsButton").addEventListener("click", function() {
     // Your existing button click handler code
-	generateTelegramReferralLink(botUsername);
-	copyToClipboard(text);
-	
+	function generateTelegramReferralLink(botUsername) {
+        const telegramId = localStorage.getItem("telegramId");
+        return telegramId ? `https://t.me/${botUsername}?start=${telegramId}` : null;
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Link copied to clipboard!");
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    // Make copyToClipboard global
+    window.copyToClipboard = copyToClipboard;
+
+    document.getElementById("showFriendsButton").addEventListener("click", function() {
+        const friendsDiv = document.getElementById("friends");
+        if (friendsDiv.style.display === "none" || !friendsDiv.style.display) {
+            const referralLink = generateTelegramReferralLink("TheMineCryptoBot");
+            if (referralLink) {
+                document.getElementById("referralLinkPlaceholder").innerHTML = 
+                    `<a href="#" onclick="event.preventDefault(); copyToClipboard('${referralLink}')">Click to copy referral link</a>`;
+                friendsDiv.style.display = "block";
+            }
+        } else {
+            friendsDiv.style.display = "none";
+        }
+    });
   });
 }
 
