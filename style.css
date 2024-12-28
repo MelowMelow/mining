@@ -279,13 +279,12 @@ button {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s ease;
         }
-
-        #showFriendsButton:hover {
+#showFriendsButton:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
 
         /* Style for the friends div as a frame */
-        #friends {
+#friends {
             display: none; /* Hidden by default */
             position: absolute; /* Allows manual positioning */
             top: 100px; /* Adjust to your preference */
@@ -299,7 +298,7 @@ button {
         }
 
         /* Header inside the friends div */
-        #friends h2 {
+#friends h2 {
             margin: 0 0 10px 0; /* Space below header */
             font-size: 18px;
             color: #333; /* Dark text */
@@ -307,11 +306,11 @@ button {
 
         
         /* Anchor link inside friends div */
-        #friends a {
+#friends a {
             text-decoration: none;
             color: #007BFF; /* Link color */
         }
 
-        #friends a:hover {
+#friends a:hover {
             text-decoration: underline;
         }
