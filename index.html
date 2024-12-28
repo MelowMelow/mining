@@ -24,6 +24,13 @@
     <button id="mine-button">Start Mining</button>
     <button id="inventory-button">Inventory</button>
     <button id="leaderboard-button">Leaderboard</button>
+	<button id="showFriendsButton">Friends</button>
+
+    <div id="friends">
+        <h2>Your Friends</h2>
+        <p>Invite your friends using this link:</p>
+        <!-- Referral link will be displayed here -->
+    </div>
 
     <div id="inventory-frame" class="hidden">
       <div>
@@ -50,7 +57,7 @@
     data-auth-url="https://mining-pink.vercel.app/api/authenticate">
   </script>
 </div>
-
+<script src="get-referral-link.js"></script>
 <script type="module" src="script.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
