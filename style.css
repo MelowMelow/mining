@@ -267,7 +267,7 @@ button {
 
 #showFriendsButton {
             position: absolute; /* Allows manual positioning */
-            top: 20px;         /* Adjust vertical position */
+            top: 100px;         /* Adjust vertical position */
             left: 20px;        /* Adjust horizontal position */
             padding: 10px 20px;
             font-size: 16px;
