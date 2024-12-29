@@ -91,7 +91,12 @@ const handler = async (req, res) => {
             });
 			
         }
-		const referrerId = referralStorage[telegramId]; // Get the referrer ID
+		const { data: referralData, error: referralError } = await supabase
+            .from('pending_referrals')
+            .select('referrer_id')
+            .eq('telegram_id', id)
+            .single();
+
         // Register new user
         const { data: newUser, error: insertError } = await supabase
             .from("users")
@@ -102,7 +107,7 @@ const handler = async (req, res) => {
                 last_name: last_name || null,
                 photo_url: photo_url || null,
                 language_code: language_code || null,
-				referrer_id: referrer_id || null, // Include referrer_id
+				referrer_id: referralData?.referrer_id || null,
             }])
             .select()
             .single();
