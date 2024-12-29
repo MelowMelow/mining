@@ -9,7 +9,7 @@ export function initializeReferral() {
             if (telegramId) {
                 const referralLink = `https://t.me/TheMineCryptoBot?start=${telegramId}`;
                 document.getElementById("referralLinkPlaceholder").innerHTML = 
-                    `<a href="${referralLink}" target="_blank">Click here to get your referral link!</a>`;
+                    `<span>${referralLink}</span>`;
             }
             friendsDiv.style.display = "block";
         } else {
