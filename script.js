@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
   document.getElementById("close-inventory").addEventListener("click", toggleInventory);
   document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
-  initializeFriendsButton();
+  
   
   
   // Authenticate and load resources immediately when the page loads
