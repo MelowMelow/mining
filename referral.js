@@ -10,8 +10,10 @@ export function initializeReferral() {
                 const referralLink = `https://t.me/TheMineCryptoBot?start=${telegramId}`;
                 document.getElementById("referralLinkPlaceholder").innerHTML = 
                     `<span>${referralLink}</span>`;
+					
             }
             friendsDiv.style.display = "block";
+			alert('Referral System Will Work Soon');
         } else {
             friendsDiv.style.display = "none";
         }
