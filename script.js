@@ -24,37 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Authenticate and load resources immediately when the page loads
   authenticateAndLoadResources();
 });
-
-function initializeFriendsButton() {
-    // Hide the 'friends' div by default
-    document.getElementById("friends").style.display = "none";
-
-    // Event listener for the 'showFriendsButton'
-    document.getElementById("showFriendsButton").addEventListener("click", function () {
-
-        // Generate the referral link
-        function generateTelegramReferralLink(botUsername) {
-            const telegramId = localStorage.getItem("telegramId");
-            return telegramId ? `https://t.me/${botUsername}?start=${telegramId}` : null;
-        }
-
-        const friendsDiv = document.getElementById("friends");
-
-        // Check if the 'friends' div is currently hidden or not
-        if (friendsDiv.style.display === "none" || !friendsDiv.style.display) {
-
-            // Generate and display the referral link
-		const referralLink = generateTelegramReferralLink("TheMineCryptoBot");
-
-        if (referralLink) {
-            document.getElementById("referralLinkPlaceholder").innerHTML = 
-                `<a href="#" onclick="event.preventDefault(); copyToClipboard('${referralLink}')">Click to copy referral link</a>`;
-            friendsDiv.style.display = "block"; // Show the 'friends' div
-        }
-        } else {
-            friendsDiv.style.display = "none"; // Hide the 'friends' div if it's already visible
-        }
-    });
 }
 
 

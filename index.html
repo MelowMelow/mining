@@ -60,6 +60,10 @@
 </div>
 
 <script type="module" src="script.js"></script>
+<script type="module">
+    import { initializeReferral } from './referral.js';
+    document.addEventListener('DOMContentLoaded', initializeReferral);
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   if (window.Telegram && window.Telegram.WebApp) {
