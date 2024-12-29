@@ -43,8 +43,7 @@ async function authenticateAndLoadResources() {
       if (data.success && data.telegram_id) {
         localStorage.setItem("telegramId", data.telegram_id.toString());
         localStorage.setItem("userData", JSON.stringify(data.user));
-		const userData = JSON.parse(localStorage.getItem("userData"));
-		const photo_url = userData?.photo_url; // Access the `photo_url` if it exists
+		
 
         console.log("Authentication successful", data);
 
