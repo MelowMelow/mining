@@ -1,58 +1,48 @@
 // referral.js
 export function initializeReferral() {
-    // Initial hide
-    const friendsDiv = document.getElementById("friends");
-    if (friendsDiv) {
-        friendsDiv.style.display = "none";
-    }
-
-    // Separate functions for clarity
-    function generateTelegramReferralLink() {
-        const telegramId = localStorage.getItem("telegramId");
-        if (!telegramId) return null;
-        return `https://t.me/TheMineCryptoBot?start=${telegramId}`;
-    }
+    document.getElementById("friends").style.display = "none";
 
     function copyToClipboard(text) {
-        navigator.clipboard.writeText(text)
-            .then(() => alert("Link copied to clipboard!"))
-            .catch(err => console.error('Failed to copy:', err));
+        // Create temporary textarea
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed'; // Avoid scrolling
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        
+        try {
+            // Try modern clipboard API first
+            navigator.clipboard.writeText(text)
+                .then(() => alert("Link copied to clipboard!"))
+                .catch(() => {
+                    // Fallback to older method
+                    textarea.select();
+                    document.execCommand('copy');
+                    alert("Link copied to clipboard!");
+                });
+        } catch (err) {
+            // If all else fails, show the link to manually copy
+            alert("Please copy this link: " + text);
+        } finally {
+            // Clean up
+            document.body.removeChild(textarea);
+        }
     }
 
-    // Make copy function globally available
     window.copyToClipboard = copyToClipboard;
 
-    // Button click handler
-    const showFriendsButton = document.getElementById("showFriendsButton");
-    if (showFriendsButton) {
-        showFriendsButton.addEventListener("click", function() {
-            const friendsDiv = document.getElementById("friends");
-            const placeholderDiv = document.getElementById("referralLinkPlaceholder");
-            
-            if (!friendsDiv || !placeholderDiv) {
-                console.error("Required elements not found");
-                return;
+    document.getElementById("showFriendsButton").addEventListener("click", function() {
+        const friendsDiv = document.getElementById("friends");
+        if (friendsDiv.style.display === "none" || !friendsDiv.style.display) {
+            const telegramId = localStorage.getItem("telegramId");
+            if (telegramId) {
+                const referralLink = `https://t.me/TheMineCryptoBot?start=${telegramId}`;
+                document.getElementById("referralLinkPlaceholder").innerHTML = 
+                    `<a href="#" onclick="event.preventDefault(); copyToClipboard('${referralLink}')">Click to copy referral link</a>`;
             }
-
-            if (friendsDiv.style.display === "none" || !friendsDiv.style.display) {
-                // Generate link
-                const referralLink = generateTelegramReferralLink();
-                
-                // Update placeholder with link
-                if (referralLink) {
-                    placeholderDiv.innerHTML = `
-                        <a href="#" onclick="event.preventDefault(); 
-                        copyToClipboard('${referralLink}')">
-                            Click to copy your referral link
-                        </a>`;
-                }
-                
-                // Show the div
-                friendsDiv.style.display = "block";
-            } else {
-                // Hide the div
-                friendsDiv.style.display = "none";
-            }
-        });
-    }
+            friendsDiv.style.display = "block";
+        } else {
+            friendsDiv.style.display = "none";
+        }
+    });
 }
