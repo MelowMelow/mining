@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Authenticate and load resources immediately when the page loads
   authenticateAndLoadResources();
 });
-}
+
 
 
 async function authenticateAndLoadResources() {
@@ -255,12 +255,3 @@ function toggleLeaderboard() {
   }
 }
 
-function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert("Link copied to clipboard!");
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-        });
-    }
-// Make copyToClipboard global
-window.copyToClipboard = copyToClipboard;
