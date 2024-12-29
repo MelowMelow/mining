@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
   document.getElementById("close-inventory").addEventListener("click", toggleInventory);
   document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
-  document.getElementById("avatar").style.backgroundImage = `url('${photo_url}')`;
+  initializeFriendsButton();
   
   
   // Authenticate and load resources immediately when the page loads
@@ -42,8 +42,7 @@ async function authenticateAndLoadResources() {
       const data = await response.json();
       if (data.success && data.telegram_id) {
         localStorage.setItem("telegramId", data.telegram_id.toString());
-      
-
+        localStorage.setItem("userData", JSON.stringify(data.user));
         console.log("Authentication successful", data);
 
         // Update resources from the authentication response
