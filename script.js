@@ -42,8 +42,7 @@ async function authenticateAndLoadResources() {
       const data = await response.json();
       if (data.success && data.telegram_id) {
         localStorage.setItem("telegramId", data.telegram_id.toString());
-        localStorage.setItem("userData", JSON.stringify(data.user));
-		
+      
 
         console.log("Authentication successful", data);
 
