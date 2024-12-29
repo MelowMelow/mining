@@ -86,7 +86,6 @@ const handler = async (req, res) => {
                 success: true,
                 user: existingUser,
                 telegram_id: id,
-				photo_url: photo_url,
                 resources: existingUser.resources || { gold: 0, silver: 0, iron: 0 },
                 isNewUser: false,
             });
