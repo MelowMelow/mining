@@ -14,7 +14,7 @@ bot.start(async (ctx) => {
         
         // Store referral data in Supabase
         const { error } = await supabase
-            .from('pending_referrals')  // You'll need to create this table
+            .from('pending_referrals')
             .upsert({ 
                 telegram_id: telegramId,
                 referrer_id: referrerId,
@@ -26,7 +26,7 @@ bot.start(async (ctx) => {
         }
 
         console.log(`User ${telegramId} was referred by ${referrerId}`);
-        ctx.reply(`Welcome! You were referred by user ${referrerId}. You could launch app now t.me/theminecryptobot/marsmine');
+        ctx.reply(`Welcome! You were referred by user ${referrerId}. You could launch app now t.me/theminecryptobot/marsmine`);
     } else {
         ctx.reply("Welcome! Start using the app t.me/theminecryptobot/marsmine");
     }
