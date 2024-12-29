@@ -293,8 +293,9 @@ button {
             padding: 20px;
             border: 2px solid #ccc; /* Frame border */
             border-radius: 10px;
-            background-color: #f9f9f9; /* Light grey background */
+            background-color: rgba(0, 0, 0, 0.8); /* Light grey background */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow */
+			z-index: 15; /* Added higher z-index to be above game elements */
         }
 
         /* Header inside the friends div */
