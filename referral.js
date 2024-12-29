@@ -13,7 +13,7 @@ export function initializeReferral() {
 					
             }
             friendsDiv.style.display = "block";
-			alert('Referral System Will Work Soon');
+			alert('You can invite friends now');
         } else {
             friendsDiv.style.display = "none";
         }
