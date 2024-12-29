@@ -315,3 +315,15 @@ button {
 #friends a:hover {
             text-decoration: underline;
         }
+
+#avatar {
+  position: absolute; /* Allows manual positioning */
+  top: 40px;         /* Adjust vertical position */
+  left: 30px;        /* Adjust horizontal position */
+  width: 70px; /* Size of the avatar */
+  height: 70px;
+  border-radius: 50%; /* Circular shape */
+  background-size: cover; /* Cover the container fully without distortion */
+  background-position: center; /* Center the image */
+  border: 2px solid #000; /* Optional: Add a border around the avatar */
+}

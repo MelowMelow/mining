@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
   document.getElementById("close-inventory").addEventListener("click", toggleInventory);
   document.getElementById("leaderboard-button").addEventListener("click", toggleLeaderboard);
-  
+  document.getElementById("avatar").style.backgroundImage = `url('${photo_url}')`;
   
   
   // Authenticate and load resources immediately when the page loads
