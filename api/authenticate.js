@@ -16,6 +16,7 @@ const handler = async (req, res) => {
     try {
         const { initData } = req.body;
 
+        // Validate incoming data
         if (!initData) {
             return res.status(400).json({ error: "No Telegram init data provided" });
         }
@@ -29,6 +30,7 @@ const handler = async (req, res) => {
             return res.status(500).json({ error: "Server configuration error" });
         }
 
+        // Parse Telegram user data
         const user = JSON.parse(userData.user || "{}");
         const { id, username, first_name, last_name, photo_url, language_code } = user;
 
@@ -36,6 +38,7 @@ const handler = async (req, res) => {
             return res.status(400).json({ error: "Invalid user data" });
         }
 
+        // Verify Telegram data integrity
         const dataCheckString = Object.entries(userData)
             .filter(([key]) => key !== "hash")
             .sort(([a], [b]) => a.localeCompare(b))
@@ -56,14 +59,11 @@ const handler = async (req, res) => {
             return res.status(403).json({ error: "Invalid signature" });
         }
 
-        // Check if user exists and fetch their resources
+        // Query the database for an existing user and their resources
         const { data: existingUser, error: userError } = await supabase
             .from("users")
             .select(`
-                id,
-                username,
-                first_name,
-                last_name,
+                *,
                 resources (
                     gold,
                     silver,
@@ -78,18 +78,19 @@ const handler = async (req, res) => {
             return res.status(500).json({ error: userError.message });
         }
 
+        // Handle existing user scenario
         if (existingUser) {
-            console.log(`Existing user found for Telegram ID ${id}:`, existingUser);
-
-            const resources = existingUser.resources || { gold: 0, silver: 0, iron: 0 };
+            console.log(`User with Telegram ID ${id} found.`, existingUser);
 
             return res.status(200).json({
                 success: true,
                 user: existingUser,
                 telegram_id: id,
-                resources,
+				photo_url: photo_url,
+                resources: existingUser.resources || { gold: 0, silver: 0, iron: 0 },
                 isNewUser: false,
             });
+			
         }
 
         // Register new user
@@ -107,11 +108,11 @@ const handler = async (req, res) => {
             .single();
 
         if (insertError) {
-            console.error("Error registering user:", insertError.message);
+            console.error("User creation error:", insertError.message);
             return res.status(500).json({ error: insertError.message });
         }
 
-        // Initialize resources for the new user
+        // Initialize default resources for the new user
         const { data: resourceSetup, error: resourceError } = await supabase
             .from("resources")
             .insert([{
@@ -124,11 +125,11 @@ const handler = async (req, res) => {
             .single();
 
         if (resourceError) {
-            console.error("Error initializing resources:", resourceError.message);
+            console.error("Resource creation error:", resourceError.message);
             return res.status(500).json({ error: resourceError.message });
         }
 
-        console.log(`New user created with Telegram ID ${id}, resources initialized.`);
+        console.log(`New user created with Telegram ID ${id}. Resources initialized.`);
 
         return res.status(200).json({
             success: true,
