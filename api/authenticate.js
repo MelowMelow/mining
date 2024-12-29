@@ -91,7 +91,7 @@ const handler = async (req, res) => {
             });
 			
         }
-
+		const referrerId = referralStorage[telegramId]; // Get the referrer ID
         // Register new user
         const { data: newUser, error: insertError } = await supabase
             .from("users")
