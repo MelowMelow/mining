@@ -102,6 +102,7 @@ const handler = async (req, res) => {
                 last_name: last_name || null,
                 photo_url: photo_url || null,
                 language_code: language_code || null,
+				referrer_id: referrer_id || null, // Include referrer_id
             }])
             .select()
             .single();
