@@ -37,35 +37,33 @@ body {
 }
 
 #preloader p {
-	position: fixed;
+    position: fixed;
     top: 80%;
     left: 35%;
+    transform: translate(-35%, -50%); /* Adjust for better centering */
     font-family: Arial, sans-serif;
     font-size: 16px;
     color: #555;
 }
 
-/* Loading Bar */
+/* Loading Bar Container */
 .loading-bar {
     position: fixed;
-    top: 85%;
-    left: 15%;
+    top: 85%; /* Adjusted for positioning */
+    left: 15%; /* Adjusted for positioning */
     width: 70%; /* Adjust width as needed */
     height: 10px;
     background: #e0e0e0; /* Background of the bar */
     border-radius: 5px;
     overflow: hidden;
-    margin-top: 10px;
 }
 
+/* Progress Indicator */
 .loading-bar .progress {
-    position: fixed;
-    top: 85%;
-    left: 15%;file:///F:/testgame/test/preloader.jpg
     height: 100%;
     width: 0%; /* Start at 0% */
     background: linear-gradient(90deg, #007bff, #00d4ff); /* Gradient color */
-    transition: width 0.1s ease; /* Smooth animation */
+    transition: width 0.3s ease; /* Smooth animation */
 }
 
 
