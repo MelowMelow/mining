@@ -18,29 +18,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // Show the preloader until the page is fully loaded
     const preloader = document.getElementById('preloader');
     const progressBar = document.querySelector('.loading-bar .progress');
-    document.body.classList.add('loading');
+
+    let progress = 0; // Initialize progress
 
     // Simulate progress updates
-    let progress = 0;
     const interval = setInterval(() => {
         progress += 10; // Increment progress
         progressBar.style.width = `${progress}%`;
 
-        // Stop simulation when complete
+        // Stop animation when progress is complete
         if (progress >= 100) {
             clearInterval(interval);
+            // Hide preloader after completing animation
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
         }
-    }, 300);
-
-    // Hide preloader when page is fully loaded
-    window.onload = () => {
-        clearInterval(interval); // Ensure the interval stops
-        progressBar.style.width = '100%'; // Ensure it's full
-        document.body.classList.remove('loading');
-        setTimeout(() => {
-            preloader.style.display = 'none'; // Hide the preloader
-        }, 500); // Optional small delay for a smooth transition
-    };
+    }, 300); // Update every 300ms
   document.getElementById("mine-button").addEventListener("click", startMining);
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
   document.getElementById("close-inventory").addEventListener("click", toggleInventory);
