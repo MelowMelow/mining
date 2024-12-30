@@ -31,12 +31,15 @@ body {
 }
 
 #preloader img {
-    width: 672px; /* Adjust to fit your design */
+    width: 100%; /* Adjust to fit your design */
     height: auto;
     margin-bottom: 15px;
 }
 
 #preloader p {
+	position: fixed;
+    top: 80%;
+    left: 35%;
     font-family: Arial, sans-serif;
     font-size: 16px;
     color: #555;
@@ -44,7 +47,9 @@ body {
 
 /* Loading Bar */
 .loading-bar {
-    position: relative;
+    position: fixed;
+    top: 85%;
+    left: 15%;
     width: 70%; /* Adjust width as needed */
     height: 10px;
     background: #e0e0e0; /* Background of the bar */
@@ -54,7 +59,9 @@ body {
 }
 
 .loading-bar .progress {
-    position: absolute;
+    position: fixed;
+    top: 85%;
+    left: 15%;file:///F:/testgame/test/preloader.jpg
     height: 100%;
     width: 0%; /* Start at 0% */
     background: linear-gradient(90deg, #007bff, #00d4ff); /* Gradient color */
