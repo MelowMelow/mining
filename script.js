@@ -13,7 +13,34 @@ let resources = {
 
 
 
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Show the preloader until the page is fully loaded
+    const preloader = document.getElementById('preloader');
+    const progressBar = document.querySelector('.loading-bar .progress');
+    document.body.classList.add('loading');
+
+    // Simulate progress updates
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10; // Increment progress
+        progressBar.style.width = `${progress}%`;
+
+        // Stop simulation when complete
+        if (progress >= 100) {
+            clearInterval(interval);
+        }
+    }, 300);
+
+    // Hide preloader when page is fully loaded
+    window.onload = () => {
+        clearInterval(interval); // Ensure the interval stops
+        progressBar.style.width = '100%'; // Ensure it's full
+        document.body.classList.remove('loading');
+        setTimeout(() => {
+            preloader.style.display = 'none'; // Hide the preloader
+        }, 500); // Optional small delay for a smooth transition
+    };
   document.getElementById("mine-button").addEventListener("click", startMining);
   document.getElementById("inventory-button").addEventListener("click", toggleInventory);
   document.getElementById("close-inventory").addEventListener("click", toggleInventory);
@@ -80,6 +107,7 @@ async function startMining() {
   const telegramId = localStorage.getItem("telegramId");
   if (!telegramId) {
     console.error("Not authenticated");
+	alert('Please Log in via Telegram App');
     return;
   }
 

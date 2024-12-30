@@ -13,6 +13,55 @@ body {
   color: white;
 }
 
+/* Preloader styles */
+/* Preloader styles */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff; /* Background color */
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#preloader img {
+    width: 150px; /* Adjust to fit your design */
+    height: auto;
+    margin-bottom: 15px;
+}
+
+#preloader p {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Loading Bar */
+.loading-bar {
+    position: relative;
+    width: 70%; /* Adjust width as needed */
+    height: 10px;
+    background: #e0e0e0; /* Background of the bar */
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.loading-bar .progress {
+    position: absolute;
+    height: 100%;
+    width: 0%; /* Start at 0% */
+    background: linear-gradient(90deg, #007bff, #00d4ff); /* Gradient color */
+    transition: width 0.1s ease; /* Smooth animation */
+}
+
+
 #main-container {
   position: relative;
   display: flex;
