@@ -54,7 +54,7 @@ const UpgradeMenu = () => {
       playerData.resources.silver >= upgradeLevels[level - 1].cost.silver &&
       playerData.resources.iron >= upgradeLevels[level - 1].cost.iron &&
       // ... (check for referral friend if required)
-    ) {
+    ) 
       // Deduct resources from player
       // ... (update player resources in database)
       setPlayerData({
