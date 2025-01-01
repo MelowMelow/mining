@@ -1,7 +1,6 @@
-// ... existing script.js code ...
-import ReactDOM from 'react-dom/client';
-
-import UpgradeMenu from './UpgradeMenu.xjs';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import UpgradeMenu from './UpgradeMenu';
 
 document.addEventListener("DOMContentLoaded", () => {
   // ... existing code ...
