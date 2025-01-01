@@ -1,16 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import UpgradeMenu from './UpgradeMenu';
+import UpgradeMenu from './components/UpgradeMenu';
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ... existing code ...
 
-  // Add the UpgradeMenu component to your HTML
-  const upgradeMenuContainer = document.createElement('div');
-  upgradeMenuContainer.id = 'upgrade-menu';
-  document.body.appendChild(upgradeMenuContainer);
-  ReactDOM.render(<UpgradeMenu />, upgradeMenuContainer);
-});
 
 let energy = 1000;
 let isMining = false;
@@ -32,6 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressBar = document.querySelector('.loading-bar .progress');
 
     let progress = 0; // Initialize progress
+	
+	// Add the UpgradeMenu component to your HTML
+    const upgradeMenuContainer = document.createElement('div');
+    upgradeMenuContainer.id = 'upgrade-menu';
+    document.body.appendChild(upgradeMenuContainer);
+    ReactDOM.render(<UpgradeMenu />, upgradeMenuContainer);
 
     // Simulate progress updates
     const interval = setInterval(() => {
