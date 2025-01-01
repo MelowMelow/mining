@@ -1,16 +1,4 @@
-// ... existing script.js code ...
 
-import UpgradeMenu from './UpgradeMenu.js';
-
-document.addEventListener("DOMContentLoaded", () => {
-  // ... existing code ...
-
-  // Add the UpgradeMenu component to your HTML
-  const upgradeMenuContainer = document.createElement('div');
-  upgradeMenuContainer.id = 'upgrade-menu';
-  document.body.appendChild(upgradeMenuContainer);
-  ReactDOM.render(<UpgradeMenu />, upgradeMenuContainer);
-});
 
 let energy = 1000;
 let isMining = false;
