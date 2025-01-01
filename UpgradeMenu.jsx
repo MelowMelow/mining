@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js'; // Add this import
 
 const UpgradeMenu = () => {
   const [upgradeLevels, setUpgradeLevels] = useState([
