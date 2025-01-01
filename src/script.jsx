@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import UpgradeMenu from './UpgradeMenu.jsx';
+import UpgradeMenu from './components/UpgradeMenu.jsx';
 
 
 
