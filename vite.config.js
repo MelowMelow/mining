@@ -1,8 +1,15 @@
-{
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@babel/preset-react": "^7.18.6",
-    "vite": "^4.0.0"
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    outDir: 'dist'
+  },
+  server: {
+    port: 3000
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom']
   }
-}
+})
