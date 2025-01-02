@@ -8,6 +8,13 @@ let resources = {
   iron: { count: 0, rarity: "common" },
 };
 
+let playerStats = {
+  exp: 0,
+  level: 0,
+  expToNextLevel: 200
+};
+
+
 // Set initial state
 
 
@@ -158,6 +165,7 @@ function finishMining() {
   setTimeout(() => (popup.className = ""), 1000);
 
   updateResourcesOnServer(resourceType);
+  awardExperience(1);
 }
 
 async function updateResourcesOnServer(resourceType) {
@@ -198,6 +206,18 @@ async function updateResourcesOnServer(resourceType) {
         countElement.textContent = resources[resourceType].count;
       }
       updateInventory();
+      if (data.stats) {
+        const oldLevel = playerStats.level;
+        playerStats.exp = data.stats.exp;
+        playerStats.level = data.stats.level;
+        playerStats.expToNextLevel = data.stats.expToNextLevel;
+        updateLevelUI();
+        
+        // Show level up notification if leveled up
+        if (data.levelUp) {
+          showLevelUpNotification();
+        }
+      }	  
     } else {
       throw new Error(data.error || "Unknown error occurred");
     }
@@ -277,3 +297,24 @@ function toggleLeaderboard() {
   }
 }
 
+function updateLevelUI() {
+  const levelText = document.getElementById('level-text');
+  const levelBarFill = document.getElementById('level-bar-fill');
+  
+  if (levelText && levelBarFill) {
+    levelText.textContent = `Level ${playerStats.level} (${playerStats.exp}/${playerStats.expToNextLevel} XP)`;
+    const progress = (playerStats.exp / playerStats.expToNextLevel) * 100;
+    levelBarFill.style.width = `${progress}%`;
+  }
+}
+
+function showLevelUpNotification() {
+  const popup = document.createElement('div');
+  popup.className = 'level-up-popup';
+  popup.textContent = `Level Up! You are now level ${playerStats.level}`;
+  document.body.appendChild(popup);
+  
+  setTimeout(() => {
+    popup.remove();
+  }, 3000);
+}

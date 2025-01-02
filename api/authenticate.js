@@ -68,6 +68,8 @@ const handler = async (req, res) => {
                     gold,
                     silver,
                     iron
+					exp: 0,
+					level: 0
                 )
             `)
             .eq("telegram_id", id)
@@ -86,7 +88,13 @@ const handler = async (req, res) => {
                 success: true,
                 user: existingUser,
                 telegram_id: id,
-                resources: existingUser.resources || { gold: 0, silver: 0, iron: 0 },
+                resources: existingUser.resources || { 
+					gold: 0, 
+					silver: 0, 
+					iron: 0, 
+					exp: 0, 
+					level: 0 
+				},
                 isNewUser: false,
             });
 			
@@ -125,6 +133,9 @@ const handler = async (req, res) => {
                 gold: 0,
                 silver: 0,
                 iron: 0,
+				exp: 0,
+				level: 0
+				
             }])
             .select()
             .single();
@@ -135,6 +146,8 @@ const handler = async (req, res) => {
         }
 
         console.log(`New user created with Telegram ID ${id}. Resources initialized.`);
+		
+		
 
         return res.status(200).json({
             success: true,
@@ -143,6 +156,8 @@ const handler = async (req, res) => {
             resources: resourceSetup,
             isNewUser: true,
         });
+		
+		
     } catch (error) {
         console.error("Authentication error:", error.message);
         return res.status(500).json({
