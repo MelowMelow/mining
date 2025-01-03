@@ -67,27 +67,25 @@ async function authenticateAndLoadResources() {
         body: JSON.stringify({ initData }),
       });
 
-      const data = await response.json();
-      if (data.success && data.telegram_id) {
+      
+	if (data.success && data.telegram_id) {
 		localStorage.setItem("telegramId", data.telegram_id.toString());
 		localStorage.setItem("userData", JSON.stringify(data.user));
 		console.log("Authentication successful", data);
 
 		// Update resources from the authentication response
 		if (data.resources) {
-			// Access the resources directly since it's not an array anymore
 			const userResources = data.resources;
+			
+			// Update resource counts
 			resources.gold.count = Number(userResources.gold) || 0;
 			resources.silver.count = Number(userResources.silver) || 0;
 			resources.iron.count = Number(userResources.iron) || 0;
 			
 			// Update player stats
-			if (userResources.exp !== undefined && userResources.level !== undefined) {
-				playerStats.exp = Number(userResources.exp);
-				playerStats.level = Number(userResources.level);
-				playerStats.expToNextLevel = 200 * Math.pow(2, playerStats.level);
-				updateLevelUI();
-			}
+			playerStats.exp = Number(userResources.exp) || 0;
+			playerStats.level = Number(userResources.level) || 0;
+			playerStats.expToNextLevel = 200 * Math.pow(2, playerStats.level);
 			
 			// Update UI elements
 			const goldCount = document.getElementById('gold-count');
@@ -98,8 +96,10 @@ async function authenticateAndLoadResources() {
 			if (silverCount) silverCount.textContent = resources.silver.count;
 			if (ironCount) ironCount.textContent = resources.iron.count;
 			
-			// Update inventory as well
+			// Update level UI and inventory
+			updateLevelUI();
 			updateInventory();
+
         }
       } else {
         console.error("Authentication failed:", data.error);

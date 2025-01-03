@@ -63,10 +63,14 @@ const handler = async (req, res) => {
         const { data: existingUser, error: userError } = await supabase
 			.from("users")
 			.select(`
-				*,
-				resources!inner (
-					id,
-					user_id,
+				id,
+				telegram_id,
+				username,
+				first_name,
+				last_name,
+				photo_url,
+				language_code,
+				resources (
 					gold,
 					silver,
 					iron,
@@ -84,23 +88,27 @@ const handler = async (req, res) => {
 
         // Handle existing user scenario
         if (existingUser) {
-            console.log(`User with Telegram ID ${id} found.`, existingUser);
-
-            return res.status(200).json({
-                success: true,
-                user: existingUser,
-                telegram_id: id,
-                resources: existingUser.resources || { 
-					gold: 0, 
-					silver: 0, 
-					iron: 0, 
-					exp: 0, 
-					level: 0 
-				},
-                isNewUser: false,
-            });
+			console.log(`User with Telegram ID ${id} found.`, existingUser);
 			
-        }
+			const userResources = existingUser.resources?.[0] || {
+				gold: 0,
+				silver: 0,
+				iron: 0,
+				exp: 0,
+				level: 0
+			};
+
+			return res.status(200).json({
+				success: true,
+				user: {
+					...existingUser,
+					resources: undefined // Remove nested resources to avoid confusion
+				},
+				telegram_id: id,
+				resources: userResources,
+				isNewUser: false
+			});
+		}
 		const { data: referralData, error: referralError } = await supabase
             .from('pending_referrals')
             .select('referrer_id')
