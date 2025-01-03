@@ -61,17 +61,25 @@ const handler = async (req, res) => {
 
         // Query the database for an existing user and their resources
         const { data: existingUser, error: userError } = await supabase
-            .from("users")
-            .select(`
-                *,
-                resources (
-                    gold,
-                    silver,
-                    iron
-                )
-            `)
-            .eq("telegram_id", id)
-            .single();
+			.from("users")
+			.select(`
+				id,
+				telegram_id,
+				username,
+				first_name,
+				last_name,
+				photo_url,
+				language_code,
+				resources (
+					gold,
+					silver,
+					iron,
+					exp,
+					level
+				)
+			`)
+			.eq("telegram_id", id)
+			.single();
 
         if (userError && userError.code !== "PGRST116") {
             console.error("Database user fetch error:", userError.message);
@@ -80,17 +88,27 @@ const handler = async (req, res) => {
 
         // Handle existing user scenario
         if (existingUser) {
-            console.log(`User with Telegram ID ${id} found.`, existingUser);
-
-            return res.status(200).json({
-                success: true,
-                user: existingUser,
-                telegram_id: id,
-                resources: existingUser.resources || { gold: 0, silver: 0, iron: 0 },
-                isNewUser: false,
-            });
+			console.log(`User with Telegram ID ${id} found.`, existingUser);
 			
-        }
+			const userResources = existingUser.resources?.[0] || {
+				gold: 0,
+				silver: 0,
+				iron: 0,
+				exp: 0,
+				level: 0
+			};
+
+			return res.status(200).json({
+				success: true,
+				user: {
+					...existingUser,
+					resources: undefined // Remove nested resources to avoid confusion
+				},
+				telegram_id: id,
+				resources: userResources,
+				isNewUser: false
+			});
+		}
 		const { data: referralData, error: referralError } = await supabase
             .from('pending_referrals')
             .select('referrer_id')
@@ -125,6 +143,9 @@ const handler = async (req, res) => {
                 gold: 0,
                 silver: 0,
                 iron: 0,
+				exp: 0,
+				level: 0
+				
             }])
             .select()
             .single();
@@ -135,6 +156,8 @@ const handler = async (req, res) => {
         }
 
         console.log(`New user created with Telegram ID ${id}. Resources initialized.`);
+		
+		
 
         return res.status(200).json({
             success: true,
@@ -143,6 +166,8 @@ const handler = async (req, res) => {
             resources: resourceSetup,
             isNewUser: true,
         });
+		
+		
     } catch (error) {
         console.error("Authentication error:", error.message);
         return res.status(500).json({
