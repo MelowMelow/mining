@@ -64,7 +64,9 @@ const handler = async (req, res) => {
 			.from("users")
 			.select(`
 				*,
-				resources!users_id_fkey (
+				resources!inner (
+					id,
+					user_id,
 					gold,
 					silver,
 					iron,
