@@ -26,9 +26,9 @@ bot.start(async (ctx) => {
         }
 
         console.log(`User ${telegramId} was referred by ${referrerId}`);
-        ctx.reply(`Welcome! You were referred by user ${referrerId}. You guys will be rewarded. You can play now! `);
+        ctx.reply(`Welcome! You were referred by user ${referrerId}. You could launch app now t.me/theminecryptobot/marsmine`);
     } else {
-        ctx.reply("Welcome! “🚀 A fun and engaging mining game powered by a Telegram bot! Explore, mine, and grow your resources with ease. 🌟 Join now to start your adventure!");
+        ctx.reply("Welcome! Start using the app t.me/theminecryptobot/marsmine");
     }
 });
 
