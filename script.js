@@ -8,13 +8,6 @@ let resources = {
   iron: { count: 0, rarity: "common" },
 };
 
-let playerStats = {
-  exp: 0,
-  level: 0,
-  expToNextLevel: 200
-};
-
-
 // Set initial state
 
 
@@ -67,39 +60,31 @@ async function authenticateAndLoadResources() {
         body: JSON.stringify({ initData }),
       });
 
-      
-	if (data.success && data.telegram_id) {
-		localStorage.setItem("telegramId", data.telegram_id.toString());
-		localStorage.setItem("userData", JSON.stringify(data.user));
-		console.log("Authentication successful", data);
+      const data = await response.json();
+      if (data.success && data.telegram_id) {
+        localStorage.setItem("telegramId", data.telegram_id.toString());
+        localStorage.setItem("userData", JSON.stringify(data.user));
+        console.log("Authentication successful", data);
 
-		// Update resources from the authentication response
-		if (data.resources) {
-			const userResources = data.resources;
-			
-			// Update resource counts
-			resources.gold.count = Number(userResources.gold) || 0;
-			resources.silver.count = Number(userResources.silver) || 0;
-			resources.iron.count = Number(userResources.iron) || 0;
-			
-			// Update player stats
-			playerStats.exp = Number(userResources.exp) || 0;
-			playerStats.level = Number(userResources.level) || 0;
-			playerStats.expToNextLevel = 200 * Math.pow(2, playerStats.level);
-			
-			// Update UI elements
-			const goldCount = document.getElementById('gold-count');
-			const silverCount = document.getElementById('silver-count');
-			const ironCount = document.getElementById('iron-count');
-			
-			if (goldCount) goldCount.textContent = resources.gold.count;
-			if (silverCount) silverCount.textContent = resources.silver.count;
-			if (ironCount) ironCount.textContent = resources.iron.count;
-			
-			// Update level UI and inventory
-			updateLevelUI();
-			updateInventory();
-
+        // Update resources from the authentication response
+        if (data.resources && Array.isArray(data.resources) && data.resources[0]) {
+          // Get the first resources object from the array
+          const userResources = data.resources[0];
+          resources.gold.count = Number(userResources.gold) || 0;
+          resources.silver.count = Number(userResources.silver) || 0;
+          resources.iron.count = Number(userResources.iron) || 0;
+          
+          // Update UI elements
+          const goldCount = document.getElementById('gold-count');
+          const silverCount = document.getElementById('silver-count');
+          const ironCount = document.getElementById('iron-count');
+          
+          if (goldCount) goldCount.textContent = resources.gold.count;
+          if (silverCount) silverCount.textContent = resources.silver.count;
+          if (ironCount) ironCount.textContent = resources.iron.count;
+          
+          // Update inventory as well
+          updateInventory();
         }
       } else {
         console.error("Authentication failed:", data.error);
@@ -173,7 +158,6 @@ function finishMining() {
   setTimeout(() => (popup.className = ""), 1000);
 
   updateResourcesOnServer(resourceType);
-  awardExperience(1);
 }
 
 async function updateResourcesOnServer(resourceType) {
@@ -214,18 +198,6 @@ async function updateResourcesOnServer(resourceType) {
         countElement.textContent = resources[resourceType].count;
       }
       updateInventory();
-      if (data.stats) {
-        const oldLevel = playerStats.level;
-        playerStats.exp = data.stats.exp;
-        playerStats.level = data.stats.level;
-        playerStats.expToNextLevel = data.stats.expToNextLevel;
-        updateLevelUI();
-        
-        // Show level up notification if leveled up
-        if (data.levelUp) {
-          showLevelUpNotification();
-        }
-      }	  
     } else {
       throw new Error(data.error || "Unknown error occurred");
     }
@@ -305,24 +277,3 @@ function toggleLeaderboard() {
   }
 }
 
-function updateLevelUI() {
-  const levelText = document.getElementById('level-text');
-  const levelBarFill = document.getElementById('level-bar-fill');
-  
-  if (levelText && levelBarFill) {
-    levelText.textContent = `Level ${playerStats.level} (${playerStats.exp}/${playerStats.expToNextLevel} XP)`;
-    const progress = (playerStats.exp / playerStats.expToNextLevel) * 100;
-    levelBarFill.style.width = `${progress}%`;
-  }
-}
-
-function showLevelUpNotification() {
-  const popup = document.createElement('div');
-  popup.className = 'level-up-popup';
-  popup.textContent = `Level Up! You are now level ${playerStats.level}`;
-  document.body.appendChild(popup);
-  
-  setTimeout(() => {
-    popup.remove();
-  }, 3000);
-}
