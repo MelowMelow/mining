@@ -67,9 +67,9 @@ const handler = async (req, res) => {
                 resources (
                     gold,
                     silver,
-                    iron
-					exp: 0,
-					level: 0
+                    iron,
+					exp,
+					level
                 )
             `)
             .eq("telegram_id", id)
