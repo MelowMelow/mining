@@ -61,19 +61,19 @@ const handler = async (req, res) => {
 
         // Query the database for an existing user and their resources
         const { data: existingUser, error: userError } = await supabase
-            .from("users")
-            .select(`
-                *,
-                resources (
-                    gold,
-                    silver,
-                    iron,
+			.from("users")
+			.select(`
+				*,
+				resources!users_id_fkey (
+					gold,
+					silver,
+					iron,
 					exp,
 					level
-                )
-            `)
-            .eq("telegram_id", id)
-            .single();
+				)
+			`)
+			.eq("telegram_id", id)
+			.single();
 
         if (userError && userError.code !== "PGRST116") {
             console.error("Database user fetch error:", userError.message);
