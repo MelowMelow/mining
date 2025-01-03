@@ -173,7 +173,6 @@ function finishMining() {
   setTimeout(() => (popup.className = ""), 1000);
 
   updateResourcesOnServer(resourceType);
-  awardExperience(1);
 }
 
 async function updateResourcesOnServer(resourceType) {
